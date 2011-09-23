@@ -1,0 +1,47 @@
+Surus is HBase ORM project, developed to easily cooperate with Hadoop Map/Reduce framework and inspired by [https://github.com/ghelmling/meetup.beeno].
+"Surus" is mentioned in history as the bravest elephant in Hannibal's army [https://secure.wikimedia.org/wikipedia/en/wiki/List_of_historical_elephants]
+
+Example of usage (Java to HBase):
+
+Step 1: Declare your model
+public class Model {
+    @HRowKey
+    public byte[] key;
+
+    @HProperty(family = Constants.FAMILY_STAT, identifier = Constants.NUMBER_OF_PAGEVIEWS)
+    public int numberOfPageviews;
+
+    @HMapProperty(family = Constants.FAMILY_KEYWORD, keyType = String.class, valueType = Integer.class)
+    public Map<String, Integer> keyword = new HashMap<String, Integer>();
+
+    @HMapProperty(family = Constants.FAMILY_SESSION, keyType = String.class, valueType = Map.class)
+    @HNestedMap(keyType = String.class, valueType = String.class)
+    public Map<String, Map<String, String>> session = new HashMap<String, Map<String, String>>();
+
+    public Model() {
+    }
+}
+
+Step 2: Use Entity manager to covert your object to HBase Put object:
+
+Model document = new Model();
+// do something here and populate <document> with usefull data
+
+EntityService<Model> entityService = new EntityService<Model>(Model.class);
+Put put = entityService.insert(document);
+
+
+Example of usage (HBase to Java):
+
+Step 1: Get Result from HBase and parse it to Plain Java Object
+
+EntityService<Model> entityService = new EntityService<Model>(Model.class);
+HTablePool pool = new HTablePool();
+HTableInterface ht = pool.getTable(tableName);
+Scan scan = new Scan();
+ResultScanner scanner = ht.getScanner(scan);
+
+for (Result r : scanner) {
+        Model obj = entityService.parseResult(r);
+}
+
