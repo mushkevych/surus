@@ -1,5 +1,5 @@
 Surus is HBase ORM project, developed to easily cooperate with Hadoop Map/Reduce framework and inspired by [https://github.com/ghelmling/meetup.beeno].
-"Surus" is mentioned in history as the bravest elephant in Hannibal's army [https://secure.wikimedia.org/wikipedia/en/wiki/List_of_historical_elephants]
+"Surus" is mentioned in history as the elephant carrying Hannibal [https://secure.wikimedia.org/wikipedia/en/wiki/List_of_historical_elephants]
 
 Example of usage (Java to HBase):
 
