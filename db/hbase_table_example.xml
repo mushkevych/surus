@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<TableSchema name="example">
+    <ColumnSchema name="stat" BLOCKCACHE="false" COMPRESSION="snappy" VERSIONS="1" IN_MEMORY="false"/>
+    <ColumnSchema name="keyword" BLOCKCACHE="false" COMPRESSION="snappy" VERSIONS="1" IN_MEMORY="false"/>
+    <ColumnSchema name="os" BLOCKCACHE="false" COMPRESSION="snappy" VERSIONS="1" IN_MEMORY="false"/>
+</TableSchema>

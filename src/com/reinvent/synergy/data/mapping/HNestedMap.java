@@ -11,7 +11,8 @@ import java.lang.annotation.*;
  * In this case nested Map<String, Integer> will be stored in HBase as Json document.
  * Such document needs to be later serialized/deserialized with notion of the key/value types
  *
- * HNestedMap must be used in conjunction with HMapProperty annotation
+ * HNestedMap must be used in conjunction with HMapFamily annotation
+ * @see HMapFamily
  */
 
 @Documented

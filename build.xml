@@ -1,0 +1,124 @@
+<project name="synergy-hadoop" basedir="." default="pack">
+
+    <property environment="env"/>
+
+    <property name="project.title" value="synergy-surus"/>
+    <property name="project.version" value="01"/>
+    <property name="build.dir" value="${basedir}/build"/>
+    <property name="build.test" value="${basedir}/build/test"/>
+    <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="script.dir" value="${basedir}/script"/>
+    <property name="hadoop.dir" value="/usr/lib/hadoop"/>
+    <property name="hbase.dir" value="/usr/lib/hbase"/>
+    <property name="src.dir" value="${basedir}/src"/>
+    <property name="test.src.dir" value="${basedir}/test"/>
+    <property name="docs" value="${basedir}/docs"/>
+
+    <path id="project.class.path">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <fileset dir="${hadoop.dir}/lib" includes="**/*.jar"/>
+        <fileset dir="${hbase.dir}" includes="**/*.jar"/>
+    </path>
+
+    <path id="ant.class.path">
+        <fileset dir="${hadoop.dir}" includes="**/*.jar"/>
+    </path>
+
+    <!-- ====================== Prep Work =========================================== -->
+    <target name="init" description="creates build and dist directories">
+        <mkdir dir="${build.dir}"/>
+        <mkdir dir="${dist.dir}"/>
+    </target>
+
+    <target name="clean" description="Cleans up any previous build products">
+        <delete dir="${dist.dir}" failonerror="false"/>
+        <delete dir="${build.dir}" failonerror="false"/>
+    </target>
+
+
+    <!-- ====================== Compilation Targets ================================= -->
+    <!-- build the source -->
+    <target name="compile" depends="init" description="Compile java classes">
+        <javac debug="yes" srcdir="${src.dir}" destdir="${build.dir}" deprecation="true" source="1.6" nowarn="true">
+            <classpath refid="project.class.path"/>
+            <compilerarg line="-Xmaxerrs 10000"/>
+        </javac>
+        <copy todir="${build.dir}\lib">
+            <fileset dir="${lib.dir}"/>
+        </copy>
+    </target>
+
+    <!-- package up classes into a jar file -->
+    <target name="jar" depends="clean, compile, javadoc" description="Package compiled classes into a jar file for distribution">
+        <buildnumber/>
+
+        <pathconvert property="lib.reference" pathsep=" ">
+            <mapper>
+                <chainedmapper>
+                    <!-- remove absolute path -->
+                    <flattenmapper/>
+                    <!-- add lib/ prefix -->
+                    <globmapper from="*" to="lib/*"/>
+                </chainedmapper>
+            </mapper>
+            <path>
+                <!-- lib.home contains all jar files, in several subdirectories -->
+                <fileset dir="${lib.dir}">
+                    <include name="**/*.jar"/>
+                </fileset>
+            </path>
+        </pathconvert>
+
+        <jar destfile="${dist.dir}/${ant.project.name}-${project.version}.jar">
+            <fileset dir="${build.dir}" includes="**/*"/>
+            <manifest>
+                <attribute name="Built-By" value="Bohdan Mushkevych"/>
+                <attribute name="Main-Class" value="com.reinvent.synergy.data.system.SynergyDriver"/>
+                <attribute name="Implementation-Title" value="${ant.project.name}"/>
+                <attribute name="Implementation-Version" value="${project.version}-${build.number}"/>
+                <attribute name="Implementation-Vendor" value="reInvent"/>
+                <attribute name="Class-Path" value="${lib.reference}"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <!-- Build jar file and copy all related files (settings, script) to /dist folder -->
+    <target name="pack" depends="jar" description="Build jar file and copy all related files to /dist">
+        <copy todir="${dist.dir}\lib">
+            <fileset dir="${lib.dir}"/>
+        </copy>
+        <copy todir="${dist.dir}">
+            <fileset dir="${script.dir}"/>
+        </copy>
+        <chmod file="${dist.dir}/tunnel.sh" perm="ugo+rx"/>
+    </target>
+    <!-- ====================== Run Tests ============================== -->
+    <!-- ====================== JavaDoc Generation ================================ -->
+
+    <target name="javadoc" description="Generate JavaDoc API docs">
+        <delete quiet="true">
+            <fileset dir="${docs}"/>
+        </delete>
+        <mkdir dir="${docs}"/>
+        <javadoc sourcepath="${src.dir}"
+                 destdir="${docs}"
+                 packagenames="com.reinvent.synergy.data.*"
+                 author="true"
+                 source="1.6"
+                 private="true"
+                 version="true"
+                 defaultexcludes="yes"
+                 use="true"
+                 maxmemory="512m"
+                 windowtitle="Synergy-Surus API Documentation"
+                 doctitle="&lt;h1&gt;${project.title} Documentation (Version ${project.version})&lt;/h1&gt;"
+                 bottom="Copyright &#169; 2011 - reInvent">
+            <classpath refid="project.class.path"/>
+            <packageset dir="${src.dir}" defaultexcludes="yes">
+                <include name="com/reinvent/synergy/data/**"/>
+            </packageset>
+        </javadoc>
+    </target>
+
+</project>

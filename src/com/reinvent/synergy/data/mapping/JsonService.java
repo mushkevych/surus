@@ -5,8 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.reinvent.synergy.data.model.Constants;
-import com.reinvent.synergy.data.system.PrimaryKey;
-import com.reinvent.synergy.data.system.TimeQualifier;
+import com.reinvent.synergy.data.system.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
@@ -25,9 +24,11 @@ public class JsonService<T> {
     private Gson gson = new Gson();
     private JsonParser jParser = new JsonParser();
     private Class<T> clazz;
+    private AbstractPrimaryKey primaryKey;
 
-    public JsonService(Class<T> clazz) {
+    public JsonService(Class<T> clazz, AbstractPrimaryKey primaryKey) {
         this.clazz = clazz;
+        this.primaryKey = primaryKey;
     }
 
     /**
@@ -46,7 +47,10 @@ public class JsonService<T> {
             return jElement.getAsInt();
         } else if (type == String.class) {
             return jElement.getAsString();
-        } else if (type == EntityService.MAP_STR_STR || type == EntityService.MAP_STR_INT) {
+        } else if (type == EntityService.MAP_STR_STR
+                || type == EntityService.MAP_STR_INT
+                || type == EntityService.MAP_STR_DBL
+                || type == EntityService.MAP_INT_INT) {
             if (!jElement.isJsonObject()) {
                 throw new IllegalArgumentException("Can not convert non JsonObject to Map");
             }
@@ -59,7 +63,7 @@ public class JsonService<T> {
             return jElement.getAsLong();
         } else if (type == Map.class) {
             // must be handled by specifying additionally HNestedMap annotation
-            throw new IllegalArgumentException("HNestedMap annotation is missing");
+            throw new IllegalArgumentException("HNestedMap or HMapProperties annotation is missing");
         } else {
             // not handled
             throw new IllegalArgumentException(String.format("Unsupported type %s for conversion", type.toString()));
@@ -92,7 +96,7 @@ public class JsonService<T> {
         }
     }
 
-    private Map parseMap(JsonObject joFamily, HMapProperty annotation) {
+    private Map parseMapFamily(JsonObject joFamily, HMapFamily annotation) {
         if (joFamily == null) {
             return null;
         }
@@ -106,21 +110,12 @@ public class JsonService<T> {
         return result;
     }
 
-    private Map parseComplexMap(JsonObject joFamily, HMapProperty annotation, HNestedMap nestedMap) {
+    private Map parseComplexMap(JsonObject joFamily, HMapFamily annotation, HNestedMap nestedMap) {
         if (joFamily == null) {
             return null;
         }
 
-        Type type = null;
-        if (nestedMap.keyType() == String.class && nestedMap.valueType() == Integer.class) {
-            type = EntityService.MAP_STR_INT;
-        } else if (nestedMap.keyType() == String.class && nestedMap.valueType() == String.class) {
-            type = EntityService.MAP_STR_STR;
-        } else {
-            throw new IllegalArgumentException(String.format("Unsupported key/value combination %s/%s",
-                    nestedMap.keyType().getName(), nestedMap.valueType().getName()));
-        }
-
+        Type type = EntityService.getMapType(annotation.keyType(), annotation.valueType());
         Map result = new HashMap();
         for (Map.Entry<String, JsonElement> pairs : joFamily.entrySet()) {
             Object key = convertFromString(pairs.getKey(), annotation.keyType());
@@ -141,21 +136,30 @@ public class JsonService<T> {
             Field[] fields = clazz.getDeclaredFields();
             for (Field f : fields) {
                 if (f.isAnnotationPresent(HRowKey.class)) {
-                    String siteName = jsonObject.get(Constants.SITE_NAME).getAsString();
-                    int timePeriod = jsonObject.get(Constants.TIMESTAMP).getAsInt();
-                    byte[] pk = PrimaryKey.generateKey(timePeriod, siteName, TimeQualifier.HOURLY).get();
+                    byte[] pk;
+		    if (primaryKey instanceof AbstractPrimaryKey) {
+                        JsonObject joFamily = jsonObject.getAsJsonObject(Constants.FAMILY_STAT);
+                        String domainName = joFamily.get(Constants.DOMAIN_NAME).getAsString();
+                        int timePeriod = joFamily.get(Constants.TIMEPERIOD).getAsInt();
+                        pk = ((AbstractPrimaryKey) primaryKey).generateKey(timePeriod, domainName, TimeQualifier.HOURLY).get();
+
+                    } else {
+                        throw new IllegalArgumentException(String.format("Unsupported type of PrimaryKey %s",
+                                primaryKey.getClass().getName()));
+                    }
+
                     f.set(instance, pk);
-                } else if (f.isAnnotationPresent(HMapProperty.class)) {
-                    HMapProperty annotation = f.getAnnotation(HMapProperty.class);
+                } else if (f.isAnnotationPresent(HMapFamily.class)) {
+                    HMapFamily annotation = f.getAnnotation(HMapFamily.class);
                     JsonObject joFamily = jsonObject.getAsJsonObject(annotation.family());
 
                     if (joFamily != null) {
-                        Map parsed = null;
+                        Map parsed;
                         if (f.isAnnotationPresent(HNestedMap.class)) {
                             HNestedMap nestedMap = f.getAnnotation(HNestedMap.class);
                             parsed = parseComplexMap(joFamily, annotation, nestedMap);
                         } else {
-                            parsed = parseMap(joFamily, annotation);
+                            parsed = parseMapFamily(joFamily, annotation);
                         }
                         f.set(instance, parsed);
                     }
@@ -165,6 +169,15 @@ public class JsonService<T> {
                     JsonElement joPrimitive = joFamily.get(annotation.identifier());
                     if (joPrimitive != null) {
                         Object parsed = convertFromElement(joPrimitive, f.getType());
+                        f.set(instance, parsed);
+                    }
+                } else if (f.isAnnotationPresent(HMapProperty.class)) {
+                    HMapProperty annotation = f.getAnnotation(HMapProperty.class);
+                    JsonObject joFamily = jsonObject.getAsJsonObject(annotation.family());
+                    JsonElement joPrimitive = joFamily.get(annotation.identifier());
+                    if (joPrimitive != null) {
+                        Type type = EntityService.getMapType(annotation.keyType(), annotation.valueType());
+                        Object parsed = convertFromElement(joPrimitive, type);
                         f.set(instance, parsed);
                     }
                 } else {
@@ -179,5 +192,9 @@ public class JsonService<T> {
             log.error("Exception on reflection level", e);
             return null;
         }
+    }
+
+    public String toJson(T instance) {
+        return gson.toJson(instance);
     }
 }
