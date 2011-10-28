@@ -106,7 +106,7 @@ public class EntityService<T> {
      * @param annotation from synergy model
      * @return Map in format <key: value>, where value is a primitive
      */
-    private Map parseMap(Result row, HMapFamily annotation) {
+    private Map parseMapFamily(Result row, HMapFamily annotation) {
         Map result = new HashMap();
         NavigableMap<byte[], byte[]> sourceMap = row.getFamilyMap(annotation.family().getBytes());
         for (Map.Entry<byte[], byte[]> pairs : sourceMap.entrySet()) {
@@ -155,7 +155,7 @@ public class EntityService<T> {
                         HNestedMap nestedMap = f.getAnnotation(HNestedMap.class);
                         parsed = parseComplexMap(row, annotation, nestedMap);
                     } else {
-                        parsed = parseMap(row, annotation);
+                        parsed = parseMapFamily(row, annotation);
                     }
                     f.set(instance, parsed);
                 } else if (f.isAnnotationPresent(HProperty.class)) {

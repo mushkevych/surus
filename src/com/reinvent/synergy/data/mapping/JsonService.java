@@ -115,7 +115,7 @@ public class JsonService<T> {
             return null;
         }
 
-        Type type = EntityService.getMapType(annotation.keyType(), annotation.valueType());
+        Type type = EntityService.getMapType(nestedMap.keyType(), nestedMap.valueType());
         Map result = new HashMap();
         for (Map.Entry<String, JsonElement> pairs : joFamily.entrySet()) {
             Object key = convertFromString(pairs.getKey(), annotation.keyType());
@@ -137,7 +137,7 @@ public class JsonService<T> {
             for (Field f : fields) {
                 if (f.isAnnotationPresent(HRowKey.class)) {
                     byte[] pk;
-		    if (primaryKey instanceof AbstractPrimaryKey) {
+                    if (primaryKey instanceof AbstractPrimaryKey) {
                         JsonObject joFamily = jsonObject.getAsJsonObject(Constants.FAMILY_STAT);
                         String domainName = joFamily.get(Constants.DOMAIN_NAME).getAsString();
                         int timePeriod = joFamily.get(Constants.TIMEPERIOD).getAsInt();
