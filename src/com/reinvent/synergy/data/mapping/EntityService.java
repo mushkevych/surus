@@ -2,6 +2,7 @@ package com.reinvent.synergy.data.mapping;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.reinvent.synergy.data.system.ColumnSubset;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
@@ -11,7 +12,6 @@ import org.apache.log4j.Logger;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 
@@ -65,6 +65,8 @@ public class EntityService<T> {
             return Bytes.toLong(raw);
         } else if (type instanceof Class && ((Class)type).isArray() && ((Class)type).getComponentType() == Byte.TYPE) {
             return raw;
+        } else if (type == Boolean.class || type == Boolean.TYPE) {
+            return Bytes.toBoolean(raw);
         } else if (type == Map.class) {
             // must be handled by specifying additionally HNestedMap annotation
             throw new IllegalArgumentException("HNestedMap or HMapProperties annotation is missing");
@@ -82,7 +84,7 @@ public class EntityService<T> {
      * @throws IllegalArgumentException if key/value types can not be matched to known Map Type
      */
     protected static Type getMapType(Class keyType, Class valueType) {
-        Type type = null;
+        Type type;
         if (keyType == String.class && valueType == Integer.class) {
             type = MAP_STR_INT;
         } else if (keyType == String.class && valueType == String.class) {
@@ -120,7 +122,7 @@ public class EntityService<T> {
     /**
      * method parses Result and tries to read complex map from it
      * (i.e. value in the map are maps itself)
-     * @param row from HBase
+     * @param row presenting <column family>
      * @param annotation from synergy model describing outer map
      * @param nestedMap annotation from synergy model describing embedded map
      * @return Map in format <key: <key: value>>, where value is a primitive
@@ -137,8 +139,13 @@ public class EntityService<T> {
         return result;
     }
 
+    /**
+     * method parses Result into Synergy Model
+     * @param row presenting HBase entry
+     * @return null if row is null or valid Synergy Model instance
+     */
     public T parseResult(Result row) {
-        if (row == null) {
+        if (row == null || row.getRow() == null) {
             return null;
         }
 
@@ -150,7 +157,7 @@ public class EntityService<T> {
                     f.set(instance, row.getRow());
                 } else if (f.isAnnotationPresent(HMapFamily.class)) {
                     HMapFamily annotation = f.getAnnotation(HMapFamily.class);
-                    Map parsed = null;
+                    Map parsed;
                     if (f.isAnnotationPresent(HNestedMap.class)) {
                         HNestedMap nestedMap = f.getAnnotation(HNestedMap.class);
                         parsed = parseComplexMap(row, annotation, nestedMap);
@@ -188,7 +195,7 @@ public class EntityService<T> {
     }
 
     public<T> Delete delete(byte[] key) {
-        return null;
+        return new Delete(key);
     }
 
     /**
@@ -223,6 +230,9 @@ public class EntityService<T> {
         } else if (obj instanceof Long) {
             long value = (Long) obj;
             return Bytes.toBytes(value);
+        } else if (obj instanceof Boolean) {
+            boolean value = (Boolean) obj;
+            return Bytes.toBytes(value);
         } else {
             // not handled
             throw new IllegalArgumentException(String.format("Unknown conversion to bytes for property value type %s",
@@ -230,6 +240,13 @@ public class EntityService<T> {
         }
     }
 
+    /**
+     * method inserts <column family> into Put object
+     * @param put to update with <column family>
+     * @param m Map that presents <column family>
+     * @param annotation of the <column family>
+     * @return HBase Put updated with Map instance
+     */
     private Put insertMapFamily(Put put, Map m, HMapFamily annotation) {
         for (Object o : m.entrySet()) {
             Map.Entry pairs = (Map.Entry) o;
@@ -289,11 +306,11 @@ public class EntityService<T> {
      * Method iterates thru the instance and prepares on its base HBase Put object
      * Note: only fields marked for update will be be translated to Put
      * @param instance to put into HBase
-     * @param updateFields map in format <column_family : <field1, field2...>>
+     * @param subset map in format <column_family : <field1, field2...>>
      * @param <T> any type from com.reinvent.synergy.data.model
      * @return prepared HBase Put object
      */
-    public<T> Put update(T instance, Map<String, List<String>> updateFields) {
+    public<T> Put update(T instance, ColumnSubset subset) {
         try {
             Field key = clazz.getField("key");
             byte[] keyRow = (byte[]) key.get(instance);
@@ -305,27 +322,21 @@ public class EntityService<T> {
                     continue;
                 } else if (f.isAnnotationPresent(HMapFamily.class)) {
                     HMapFamily annotation = f.getAnnotation(HMapFamily.class);
-                    if (updateFields.containsKey(annotation.family())) {
+                    if (subset.containsFamily(annotation.family())) {
                         Map m = (Map) f.get(instance);
                         update = insertMapFamily(update, m, annotation);
                     }
                 } else if (f.isAnnotationPresent(HProperty.class)) {
                     HProperty annotation = f.getAnnotation(HProperty.class);
-                    if (updateFields.containsKey(annotation.family())) {
-                        List<String> list = updateFields.get(annotation.family());
-                        if (list != null && list.contains(annotation.identifier())) {
-                            byte[] value = convertToBytes(f.get(instance));
-                            update.add(annotation.family().getBytes(), annotation.identifier().getBytes(), value);
-                        }
+                    if (subset.containsColumn(annotation.family(), annotation.identifier())) {
+                        byte[] value = convertToBytes(f.get(instance));
+                        update.add(annotation.family().getBytes(), annotation.identifier().getBytes(), value);
                     }
                 } else if (f.isAnnotationPresent(HMapProperty.class)) {
                     HMapProperty annotation = f.getAnnotation(HMapProperty.class);
-                    if (updateFields.containsKey(annotation.family())) {
-                        List<String> list = updateFields.get(annotation.family());
-                        if (list != null && list.contains(annotation.identifier())) {
-                            byte[] value = convertToBytes(f.get(instance));
-                            update.add(annotation.family().getBytes(), annotation.identifier().getBytes(), value);
-                        }
+                    if (subset.containsColumn(annotation.family(), annotation.identifier())) {
+                        byte[] value = convertToBytes(f.get(instance));
+                        update.add(annotation.family().getBytes(), annotation.identifier().getBytes(), value);
                     }
                 }
             }

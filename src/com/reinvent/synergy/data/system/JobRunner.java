@@ -35,11 +35,17 @@ public class JobRunner {
     protected Job createHadoopJob() throws IOException {
         String jobName = process.getName() + "_" + timePeriod;
         Job job = new Job(jobConfiguration, jobName);
-        job.setJarByClass(process.getMapperClass());
+        //job.setJarByClass(AbstractMapper.class);    // specifies jar with Synergy files
 
-        byte[] startRow = null; //define start row
-        byte[] stopRow = null; //define stop row
+        byte[] startRow = null;
+        byte[] stopRow = null;
+        ColumnSubset subset = process.getSubsetSource();
+
         Scan scan = new Scan(startRow, stopRow);
+        scan.setCacheBlocks(false);
+        if (subset != null) {
+            scan = subset.updateHBaseScan(scan);
+        }
 
         TableMapReduceUtil.initTableMapperJob(process.getTableSource(),
                 scan,

@@ -22,6 +22,7 @@ public class ProcessContext {
         CONTEXT.put(PROCESS_EXAMPLE, new SynergyProcess(PROCESS_EXAMPLE,
                 Constants.TABLE_EXAMPLE,
                 Constants.TABLE_EXAMPLE,
+                null,
                 TimeQualifier.YEARLY,
                 new AbstractPrimaryKey(),
                 IdentityTableMapper.class,

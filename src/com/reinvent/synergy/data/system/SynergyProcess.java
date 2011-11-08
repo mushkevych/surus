@@ -12,6 +12,7 @@ public class SynergyProcess {
     private String name;
     private String tableSource;
     private String tableTarget;
+    private ColumnSubset subsetSource;
     private TimeQualifier qualifier;
     private AbstractPrimaryKey primaryKey;
     private Class<? extends TableMapper> mapper;
@@ -21,6 +22,7 @@ public class SynergyProcess {
     public SynergyProcess(String name,
                           String tableSource,
                           String tableTarget,
+                          ColumnSubset subsetSource,
                           TimeQualifier qualifier,
                           AbstractPrimaryKey primaryKey,
                           Class<? extends TableMapper> mapper,
@@ -29,6 +31,7 @@ public class SynergyProcess {
         this.name = name;
         this.tableSource = tableSource;
         this.tableTarget = tableTarget;
+        this.subsetSource = subsetSource;
         this.qualifier = qualifier;
         this.primaryKey = primaryKey;
         this.mapper = mapper;
@@ -46,6 +49,10 @@ public class SynergyProcess {
 
     public String getTableTarget() {
         return tableTarget;
+    }
+
+    public ColumnSubset getSubsetSource() {
+        return subsetSource;
     }
 
     public TimeQualifier getQualifier() {

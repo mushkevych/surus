@@ -61,6 +61,8 @@ public class JsonService<T> {
             return jElement.getAsDouble();
         } else if (type == Long.class || type == Long.TYPE) {
             return jElement.getAsLong();
+        } else if (type == Boolean.class || type == Boolean.TYPE) {
+            return jElement.getAsBoolean();
         } else if (type == Map.class) {
             // must be handled by specifying additionally HNestedMap annotation
             throw new IllegalArgumentException("HNestedMap or HMapProperties annotation is missing");
@@ -70,6 +72,12 @@ public class JsonService<T> {
         }
     }
 
+    /**
+     * method converts raw string into Java Primitive accordingly to <type>
+     * @param raw string presenting the object
+     * @param type describing the target object
+     * @return null if raw is null or valid object otherwise
+     */
     private Object convertFromString(String raw, Class type) {
         if (raw == null) {
             return null;
@@ -87,6 +95,8 @@ public class JsonService<T> {
             return Double.valueOf(raw);
         } else if (type == Long.class || type == Long.TYPE) {
             return Long.valueOf(raw);
+        } else if (type == Boolean.class || type == Boolean.TYPE) {
+            return Boolean.valueOf(raw);
         } else if (type == Map.class) {
             // must be handled by specifying additionally HNestedMap annotation
             throw new IllegalArgumentException("Map.class is not valid Key type");
@@ -96,6 +106,12 @@ public class JsonService<T> {
         }
     }
 
+    /**
+     * method is parsing <column family> into Java HashMap
+     * @param joFamily Json element presenting <column family>
+     * @param annotation of the <column family>
+     * @return null if joFamily is null or filled HashMap otherwise
+     */
     private Map parseMapFamily(JsonObject joFamily, HMapFamily annotation) {
         if (joFamily == null) {
             return null;
@@ -110,6 +126,14 @@ public class JsonService<T> {
         return result;
     }
 
+    /**
+     * method parses JSON object and tries to read complex map from it
+     * (i.e. value in the map are maps itself)
+     * @param joFamily presenting <column family>
+     * @param annotation from synergy model describing outer map
+     * @param nestedMap annotation from synergy model describing embedded map
+     * @return Map in format <key: <key: value>>, where value is a primitive
+     */
     private Map parseComplexMap(JsonObject joFamily, HMapFamily annotation, HNestedMap nestedMap) {
         if (joFamily == null) {
             return null;
@@ -125,6 +149,11 @@ public class JsonService<T> {
         return result;
     }
 
+    /**
+     * method parses JSON string to the valid Synergy Model
+     * @param json JSON String
+     * @return null if json is null or valid Synergy Model instance
+     */
     public T fromJson(String json) {
         if (json == null) {
             return null;
@@ -142,7 +171,6 @@ public class JsonService<T> {
                         String domainName = joFamily.get(Constants.DOMAIN_NAME).getAsString();
                         int timePeriod = joFamily.get(Constants.TIMEPERIOD).getAsInt();
                         pk = ((AbstractPrimaryKey) primaryKey).generateKey(timePeriod, domainName, TimeQualifier.HOURLY).get();
-
                     } else {
                         throw new IllegalArgumentException(String.format("Unsupported type of PrimaryKey %s",
                                 primaryKey.getClass().getName()));

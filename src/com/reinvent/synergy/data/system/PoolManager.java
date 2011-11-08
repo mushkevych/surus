@@ -4,6 +4,7 @@ import com.reinvent.synergy.data.mapping.EntityService;
 import com.reinvent.synergy.data.mapping.JsonService;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTablePool;
+import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -16,7 +17,7 @@ import java.util.NoSuchElementException;
  * Description: Thread-safe pool manager of re-usable resources for Tunnel Workers
  */
 public class PoolManager<T> {
-    protected static final int FLUSH_WINDOW_MILLIS = 24000; //24 seconds
+    protected static final int FLUSH_WINDOW_MILLIS = 30000; //30 seconds
     protected static final int POOL_SIZE = 128;
     protected static final long BUFFER_SIZE = 1024*2048; // 2 MB
 
@@ -27,6 +28,7 @@ public class PoolManager<T> {
     protected boolean isFlushRequested = false;
     protected long flushTimeMillis = 0;
     protected int connectionCounter = 0;
+    protected Logger log;
 
     protected String tableName;
     protected Class<T> clazzDataModel;
@@ -40,6 +42,7 @@ public class PoolManager<T> {
         this.tableName = tableName;
         this.clazzDataModel = clazzDataModel;
         this.primaryKey = primaryKey;
+        log = Logger.getLogger(tableName);
         for (int i = 0; i < POOL_SIZE; i++) {
             dequeEntityService.add(new EntityService<T>(clazzDataModel));
             dequeJsonService.add(new JsonService<T>(clazzDataModel, primaryKey));
@@ -117,10 +120,13 @@ public class PoolManager<T> {
                 flushTimeMillis = System.currentTimeMillis();
                 isFlushRequested = true;
             }
-            if (connectionCounter == 0 || System.currentTimeMillis() - flushTimeMillis > FLUSH_WINDOW_MILLIS) {
+            if (System.currentTimeMillis() - flushTimeMillis > FLUSH_WINDOW_MILLIS) {
+                log.warn(String.format("Closing HBase pool due to time-out. Connection delta = %s", connectionCounter));
+                connectionCounter = 0;
+            }
+            if (connectionCounter == 0) {
                 poolTable.closeTablePool(tableName);
                 poolTable = new HTablePool();
-                connectionCounter = 0;
                 flushTimeMillis = 0;
                 isFlushRequested = false;
             }
