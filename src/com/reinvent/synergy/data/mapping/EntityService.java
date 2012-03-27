@@ -25,6 +25,7 @@ public class EntityService<T> {
     public static final Type MAP_STR_STR = new TypeToken<Map<String, String>>(){}.getType();
     public static final Type MAP_STR_INT = new TypeToken<Map<String, Integer>>(){}.getType();
     public static final Type MAP_INT_INT = new TypeToken<Map<Integer, Integer>>(){}.getType();
+    public static final Type MAP_LNG_INT = new TypeToken<Map<Long, Integer>>(){}.getType();
     public static final Type MAP_STR_DBL = new TypeToken<Map<String, Double>>(){}.getType();
 
     private static Logger log = Logger.getLogger(EntityService.class.getName());
@@ -54,6 +55,7 @@ public class EntityService<T> {
         } else if (type == EntityService.MAP_STR_STR
                 || type == EntityService.MAP_STR_INT
                 || type == EntityService.MAP_STR_DBL
+                || type == EntityService.MAP_LNG_INT
                 || type == EntityService.MAP_INT_INT) {
             String deserialized = Bytes.toString(raw);
             return gson.fromJson(deserialized, type);
@@ -93,6 +95,8 @@ public class EntityService<T> {
             type = MAP_STR_DBL;
         } else if (keyType == Integer.class && valueType == Integer.class) {
             type = MAP_INT_INT;
+        } else if (keyType == Long.class && valueType == Integer.class) {
+            type = MAP_LNG_INT;
         } else {
             throw new IllegalArgumentException(String.format("Unsupported key/value combination %s/%s",
                     keyType.getName(), valueType.getName()));
@@ -108,6 +112,7 @@ public class EntityService<T> {
      * @param annotation from synergy model
      * @return Map in format <key: value>, where value is a primitive
      */
+    @SuppressWarnings({"unchecked"})
     private Map parseMapFamily(Result row, HMapFamily annotation) {
         Map result = new HashMap();
         NavigableMap<byte[], byte[]> sourceMap = row.getFamilyMap(annotation.family().getBytes());
@@ -127,6 +132,7 @@ public class EntityService<T> {
      * @param nestedMap annotation from synergy model describing embedded map
      * @return Map in format <key: <key: value>>, where value is a primitive
      */
+    @SuppressWarnings({"unchecked"})
     private Map parseComplexMap(Result row, HMapFamily annotation, HNestedMap nestedMap) {
         Type type = EntityService.getMapType(nestedMap.keyType(), nestedMap.valueType());
         Map result = new HashMap();
@@ -196,6 +202,76 @@ public class EntityService<T> {
 
     public<T> Delete delete(byte[] key) {
         return new Delete(key);
+    }
+
+    /**
+     * "inline" method to put value into Map
+     * if value is null method does nothing and exits
+     * @param instance Map holding parsing result
+     * @param familyName of the <column family>
+     * @param identifier of the <column>
+     * @param value to be inserted
+     */
+    @SuppressWarnings({"unchecked"})
+    private void putValue(Map<String, Map> instance, String familyName, String identifier, Object value) {
+        if (value == null) {
+            return;
+        }
+
+        Map columnFamily = instance.get(familyName);
+        if (columnFamily == null) {
+            columnFamily = new HashMap();
+        }
+        columnFamily.put(identifier, value);
+        instance.put(familyName, columnFamily);
+    }
+
+    /**
+     * method parses Result into Map<String, Map>
+     * @param row presenting HBase entry
+     * @return null if row is null or valid Map<String, Map> instance
+     */
+    public Map<String, Map> parseIntoMap(Result row) {
+        if (row == null || row.getRow() == null) {
+            return null;
+        }
+
+        try {
+            Field[] fields = clazz.getDeclaredFields();
+            Map<String, Map> instance = new HashMap<String, Map>();
+            for (Field f : fields) {
+                if (f.isAnnotationPresent(HRowKey.class)) {
+                    continue;
+                } else if (f.isAnnotationPresent(HMapFamily.class)) {
+                    HMapFamily annotation = f.getAnnotation(HMapFamily.class);
+                    Map parsed;
+                    if (f.isAnnotationPresent(HNestedMap.class)) {
+                        HNestedMap nestedMap = f.getAnnotation(HNestedMap.class);
+                        parsed = parseComplexMap(row, annotation, nestedMap);
+                    } else {
+                        parsed = parseMapFamily(row, annotation);
+                    }
+                    instance.put(annotation.family(), parsed);
+                } else if (f.isAnnotationPresent(HProperty.class)) {
+                    HProperty annotation = f.getAnnotation(HProperty.class);
+                    byte[] raw = row.getValue(annotation.family().getBytes(), annotation.identifier().getBytes());
+                    Object value = convertFromBytes(raw, f.getType());
+                    putValue(instance, annotation.family(), annotation.identifier(), value);
+                } else if (f.isAnnotationPresent(HMapProperty.class)) {
+                    HMapProperty annotation = f.getAnnotation(HMapProperty.class);
+                    byte[] raw = row.getValue(annotation.family().getBytes(), annotation.identifier().getBytes());
+                    Type type = EntityService.getMapType(annotation.keyType(), annotation.valueType());
+                    Object value = convertFromBytes(raw, type);
+                    putValue(instance, annotation.family(), annotation.identifier(), value);
+                } else {
+                    log.debug(String.format("Skipping field %s as it has no supported annotations", f.getName()));
+                }
+            }
+            return instance;
+        } catch (SecurityException e) {
+            log.error("Exception on reflection level", e);
+            return null;
+        }
     }
 
     /**
