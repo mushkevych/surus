@@ -2,8 +2,8 @@
 
     <property environment="env"/>
 
-    <property name="project.title" value="synergy-surus"/>
-    <property name="project.version" value="01"/>
+    <property name="project.title" value="snog-hadoop"/>
+    <property name="project.version" value="02"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.test" value="${basedir}/build/test"/>
     <property name="dist.dir" value="${basedir}/dist"/>
@@ -44,6 +44,11 @@
             <classpath refid="project.class.path"/>
             <compilerarg line="-Xmaxerrs 10000"/>
         </javac>
+        <javac debug="yes" srcdir="${test.src.dir}" destdir="${build.dir}" deprecation="true" source="1.6"
+               nowarn="true">
+            <classpath refid="project.class.path"/>
+            <compilerarg line="-Xmaxerrs 10000"/>
+        </javac>
         <copy todir="${build.dir}\lib">
             <fileset dir="${lib.dir}"/>
         </copy>
@@ -53,6 +58,7 @@
     <target name="jar" depends="clean, compile, javadoc" description="Package compiled classes into a jar file for distribution">
         <buildnumber/>
 
+        <!-- this section is required to build *Class-Path* field in Metafile -->
         <pathconvert property="lib.reference" pathsep=" ">
             <mapper>
                 <chainedmapper>
@@ -63,8 +69,8 @@
                 </chainedmapper>
             </mapper>
             <path>
-                <!-- lib.home contains all jar files, in several subdirectories -->
-                <fileset dir="${lib.dir}">
+                <!-- We are referencing Jar files, earlier copied into ${build.dir}\lib directory -->
+                <fileset dir="${build.dir}\lib">
                     <include name="**/*.jar"/>
                 </fileset>
             </path>
@@ -86,12 +92,13 @@
     <!-- Build jar file and copy all related files (settings, script) to /dist folder -->
     <target name="pack" depends="jar" description="Build jar file and copy all related files to /dist">
         <copy todir="${dist.dir}\lib">
-            <fileset dir="${lib.dir}"/>
+            <fileset dir="${lib.dir}" includes="*"/>
         </copy>
         <copy todir="${dist.dir}">
             <fileset dir="${script.dir}"/>
         </copy>
-        <chmod file="${dist.dir}/tunnel.sh" perm="ugo+rx"/>
+        <chmod file="${dist.dir}/rest.sh" perm="ugo+rx"/>
+        <chmod file="${dist.dir}/csv_import.sh" perm="ugo+rx"/>
     </target>
     <!-- ====================== Run Tests ============================== -->
     <!-- ====================== JavaDoc Generation ================================ -->
@@ -113,7 +120,7 @@
                  maxmemory="512m"
                  windowtitle="Synergy-Surus API Documentation"
                  doctitle="&lt;h1&gt;${project.title} Documentation (Version ${project.version})&lt;/h1&gt;"
-                 bottom="Copyright &#169; 2011 - reInvent">
+                 bottom="Copyright &#169; 2011-2012 Bohdan Mushkevych, Reinvent">
             <classpath refid="project.class.path"/>
             <packageset dir="${src.dir}" defaultexcludes="yes">
                 <include name="com/reinvent/synergy/data/**"/>

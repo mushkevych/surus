@@ -1,6 +1,7 @@
 package com.reinvent.synergy.data.system;
 
 import com.reinvent.synergy.data.model.Constants;
+import com.reinvent.synergy.data.primarykey.IntegerPrimaryKey;
 import org.apache.hadoop.hbase.mapreduce.IdentityTableMapper;
 import org.apache.hadoop.hbase.mapreduce.IdentityTableReducer;
 import org.apache.log4j.Logger;
@@ -24,7 +25,7 @@ public class ProcessContext {
                 Constants.TABLE_EXAMPLE,
                 null,
                 TimeQualifier.YEARLY,
-                new AbstractPrimaryKey(),
+                new IntegerPrimaryKey(),
                 IdentityTableMapper.class,
                 null,
                 IdentityTableReducer.class));

@@ -7,6 +7,7 @@ package com.reinvent.synergy.data.model;
  */
 public interface Constants {
     // FIELDS
+    public static final String KEY = "key";
     public static final String DOMAIN_NAME = "domain_name";      //"key"
     public static final String TIMEPERIOD = "timeperiod";      //"t"
     public static final String KEYWORD_INDEX = "keyword_index";

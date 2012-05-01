@@ -1,5 +1,6 @@
 package com.reinvent.synergy.data.system;
 
+import com.reinvent.synergy.data.primarykey.AbstractPrimaryKey;
 import org.apache.hadoop.hbase.mapreduce.TableMapper;
 import org.apache.hadoop.hbase.mapreduce.TableReducer;
 

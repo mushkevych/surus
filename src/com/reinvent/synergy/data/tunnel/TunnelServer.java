@@ -1,6 +1,8 @@
 package com.reinvent.synergy.data.tunnel;
 
 import com.reinvent.synergy.data.model.*;
+import com.reinvent.synergy.data.primarykey.AbstractPrimaryKey;
+import com.reinvent.synergy.data.primarykey.IntegerPrimaryKey;
 import com.reinvent.synergy.data.system.*;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -82,7 +84,7 @@ public class TunnelServer<T> extends Thread {
 
         int port = Integer.parseInt(properties.getProperty("tunnel.example.port", "9999"));
         TunnelServer<Example> serverExample = new TunnelServer<Example>(
-                port, Example.class, new AbstractPrimaryKey(), Constants.TABLE_EXAMPLE);
+                port, Example.class, new IntegerPrimaryKey(), Constants.TABLE_EXAMPLE);
 
         serverExample.start();
     }

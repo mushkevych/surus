@@ -5,7 +5,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.reinvent.synergy.data.model.Constants;
-import com.reinvent.synergy.data.system.*;
+import com.reinvent.synergy.data.primarykey.AbstractPrimaryKey;
+import com.reinvent.synergy.data.primarykey.IntegerPrimaryKey;
+import com.reinvent.synergy.data.primarykey.StringPrimaryKey;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
@@ -166,11 +168,14 @@ public class JsonService<T> {
             for (Field f : fields) {
                 if (f.isAnnotationPresent(HRowKey.class)) {
                     byte[] pk;
-                    if (primaryKey instanceof AbstractPrimaryKey) {
+                    if (primaryKey instanceof StringPrimaryKey) {
                         JsonObject joFamily = jsonObject.getAsJsonObject(Constants.FAMILY_STAT);
-                        String domainName = joFamily.get(Constants.DOMAIN_NAME).getAsString();
-                        int timePeriod = joFamily.get(Constants.TIMEPERIOD).getAsInt();
-                        pk = ((AbstractPrimaryKey) primaryKey).generateKey(timePeriod, domainName, TimeQualifier.HOURLY).get();
+                        String keyrow = joFamily.get(Constants.KEY).getAsString();
+                        pk = ((StringPrimaryKey) primaryKey).generateKey(keyrow).get();
+                    } else if (primaryKey instanceof IntegerPrimaryKey) {
+                        JsonObject joFamily = jsonObject.getAsJsonObject(Constants.FAMILY_STAT);
+                        Integer keyrow = joFamily.get(Constants.KEY).getAsInt();
+                        pk = ((IntegerPrimaryKey) primaryKey).generateKey(keyrow).get();
                     } else {
                         throw new IllegalArgumentException(String.format("Unsupported type of PrimaryKey %s",
                                 primaryKey.getClass().getName()));

@@ -1,6 +1,8 @@
 package com.reinvent.synergy.data.system;
 
-import com.reinvent.synergy.data.model.*;
+import com.reinvent.synergy.data.model.Constants;
+import com.reinvent.synergy.data.model.Example;
+import com.reinvent.synergy.data.primarykey.IntegerPrimaryKey;
 import org.apache.log4j.Logger;
 
 import java.util.HashMap;
@@ -28,7 +30,7 @@ public class TableContext {
 
     static {
         CONTEXT.put(Constants.TABLE_EXAMPLE, new ContextMapping(
-                TimeQualifier.HOURLY, new PoolManager<Example>(Constants.TABLE_EXAMPLE, Example.class, new AbstractPrimaryKey())));
+                TimeQualifier.HOURLY, new PoolManager<Example>(Constants.TABLE_EXAMPLE, Example.class, new IntegerPrimaryKey())));
     }
 
     private static ContextMapping getContextMapping(String tableName) {

@@ -2,6 +2,7 @@ package com.reinvent.synergy.data.system;
 
 import com.reinvent.synergy.data.mapping.EntityService;
 import com.reinvent.synergy.data.mapping.JsonService;
+import com.reinvent.synergy.data.primarykey.AbstractPrimaryKey;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.log4j.Logger;
