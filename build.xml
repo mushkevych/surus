@@ -1,9 +1,8 @@
-<project name="synergy-hadoop" basedir="." default="pack">
+<project name="synergy-surus" basedir="." default="pack">
 
     <property environment="env"/>
-
-    <property name="project.title" value="snog-hadoop"/>
-    <property name="project.version" value="02"/>
+    <property name="project.title" value="synergy-surus"/>
+    <property name="project.version" value="01"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.test" value="${basedir}/build/test"/>
     <property name="dist.dir" value="${basedir}/dist"/>
