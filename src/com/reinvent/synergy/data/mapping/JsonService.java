@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * @author Bohdan Mushkevych
  * date: 02/09/11
- * Description: module takes care of serialization and deserialization of Data Model from Python Hourly JSON stream
+ * Description: module takes care of serialization and deserialization of Data Model from Python JSON stream
  */
 public class JsonService<T> {
 	private static Logger log = Logger.getLogger(JsonService.class.getName());
@@ -51,6 +51,7 @@ public class JsonService<T> {
             return jElement.getAsString();
         } else if (type == EntityService.MAP_STR_STR
                 || type == EntityService.MAP_STR_INT
+                || type == EntityService.MAP_LNG_INT
                 || type == EntityService.MAP_STR_DBL
                 || type == EntityService.MAP_INT_INT) {
             if (!jElement.isJsonObject()) {
@@ -227,7 +228,7 @@ public class JsonService<T> {
         }
     }
 
-    public String toJson(T instance) {
+    public String toJson(Map instance) {
         return gson.toJson(instance);
     }
 }
