@@ -3,6 +3,7 @@ package com.reinvent.synergy.data.system;
 import com.reinvent.synergy.data.mapping.EntityService;
 import com.reinvent.synergy.data.mapping.JsonService;
 import com.reinvent.synergy.data.primarykey.AbstractPrimaryKey;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.log4j.Logger;
@@ -37,12 +38,13 @@ public class PoolManager<T> {
 
     protected Deque<EntityService<T>> dequeEntityService = new ArrayDeque<EntityService<T>>(POOL_SIZE);
     protected Deque<JsonService<T>> dequeJsonService = new ArrayDeque<JsonService<T>>(POOL_SIZE);
-    protected HTablePool poolTable = new HTablePool();
+    protected HTablePool poolTable;
 
     public PoolManager(String tableName, Class<T> clazzDataModel, AbstractPrimaryKey primaryKey) {
         this.tableName = tableName;
         this.clazzDataModel = clazzDataModel;
         this.primaryKey = primaryKey;
+        this.poolTable = new HTablePool(HBaseConfiguration.create(), POOL_SIZE);
         log = Logger.getLogger(tableName);
         for (int i = 0; i < POOL_SIZE; i++) {
             dequeEntityService.add(new EntityService<T>(clazzDataModel));

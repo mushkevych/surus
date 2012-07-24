@@ -15,7 +15,6 @@ public class SynergyDriver extends Configured implements Tool {
     private static final String PROPERTY_TIMEPERIOD_WORKING = "timeperiod.working";
     private static final String PROPERTY_TIMEPERIOD_NEXT = "timeperiod.next";
 
-    @Override
     public int run(String[] strings) throws Exception {
         Configuration conf = getConf();
 //        conf.set("mapred.job.tracker", "local");
