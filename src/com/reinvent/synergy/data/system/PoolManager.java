@@ -92,10 +92,24 @@ public class PoolManager<T> {
         return primaryKey;
     }
 
+    /**
+     * @deprecated from the HBase classes:
+     * HTableInterface.close() rather than returning the tables to the pool
+     */
     public void putTable(HTable table) {
         synchronized (lockTable) {
             connectionCounter--;
-            poolTable.putTable(table);
+
+            try {
+                poolTable.putTable(table);
+            } catch (IOException e) {
+                log.warn("Error on putting HTable back to the pool. Trying to close it explicitly.", e);
+                try {
+                    table.close();
+                } catch (IOException e1) {
+                    log.error("Error on explicit HTable closure.", e1);
+                }
+            }
 
             if (isFlushRequested) {
                 flushTable();
@@ -128,7 +142,11 @@ public class PoolManager<T> {
                 connectionCounter = 0;
             }
             if (connectionCounter == 0) {
-                poolTable.closeTablePool(tableName);
+                try {
+                    poolTable.closeTablePool(tableName);
+                } catch (IOException e) {
+                    log.error("Error on closing HTablePool", e);
+                }
                 poolTable = new HTablePool();
                 flushTimeMillis = 0;
                 isFlushRequested = false;

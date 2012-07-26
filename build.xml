@@ -8,6 +8,7 @@
     <property name="dist.dir" value="${basedir}/dist"/>
     <property name="lib.dir" value="${basedir}/lib"/>
     <property name="script.dir" value="${basedir}/script"/>
+    <property name="mapred.dir" value="/usr/lib/hadoop-mapreduce"/>
     <property name="hadoop.dir" value="/usr/lib/hadoop"/>
     <property name="hbase.dir" value="/usr/lib/hbase"/>
     <property name="src.dir" value="${basedir}/src"/>
@@ -15,13 +16,12 @@
     <property name="docs" value="${basedir}/docs"/>
 
     <path id="project.class.path">
-        <fileset dir="${lib.dir}" includes="**/*.jar"/>
-        <fileset dir="${hadoop.dir}/lib" includes="**/*.jar"/>
         <fileset dir="${hbase.dir}" includes="**/*.jar"/>
-    </path>
-
-    <path id="ant.class.path">
         <fileset dir="${hadoop.dir}" includes="**/*.jar"/>
+        <!--<fileset dir="${hadoop.dir}/lib" includes="**/*.jar"/>-->
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+        <fileset dir="${mapred.dir}" includes="**/*.jar"/>
+        <!--<fileset dir="${mapred.dir}/lib" includes="**/*.jar"/>-->
     </path>
 
     <!-- ====================== Prep Work =========================================== -->
