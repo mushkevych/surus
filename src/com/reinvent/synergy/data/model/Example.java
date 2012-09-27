@@ -12,7 +12,6 @@ import java.util.Map;
 
 /**
  * @author Bohdan Mushkevych
- * date: 19/08/11
  * Description: Example data model
  */
 public class Example {

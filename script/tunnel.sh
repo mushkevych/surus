@@ -2,7 +2,6 @@
 # set -x
 
 # @author Bohdan Mushkevych
-# date: 04 Oct 2011
 # description: script to start Synergy Python-to-HBase tunnel and bring it to background
 
 if [ -d /mnt/log/synergy-data ]; then

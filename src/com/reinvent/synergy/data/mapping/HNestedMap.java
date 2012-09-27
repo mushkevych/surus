@@ -4,7 +4,6 @@ import java.lang.annotation.*;
 
 /**
  * @author Bohdan Mushkevych
- * date: 21/09/11
  * Description: Annotation to be used for complex structures like:
  * public Map<String, Map<String, Integer>> keyword;
  *

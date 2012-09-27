@@ -2,7 +2,6 @@ package com.reinvent.synergy.data.model;
 
 /**
  * @author Bohdan Mushkevych
- * date: 24/08/11
  * Description: declaration of UPDATE_FIELDS, common to Synergy Model
  */
 public interface Constants {

@@ -6,7 +6,6 @@ import org.apache.hadoop.hbase.mapreduce.TableReducer;
 
 /**
  * @author Bohdan Mushkevych
- *         date: 29/08/11
  *         Description: defines common properties for SynergyProcess
  */
 public class SynergyProcess {

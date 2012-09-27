@@ -14,7 +14,6 @@ import java.io.IOException;
 
 /**
  * @author Bohdan Mushkevych
- * date: January 2012
  * Description: REST server for the Surus project
  */
 public class RestServer {

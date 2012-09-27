@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 
 /**
  * @author Bohdan Mushkevych
- * date: 02/09/11
  * Description: Annotation marking byte[] primary key
  *
  * HRowKey must NOT be used in conjunction with other annotations

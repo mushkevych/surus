@@ -8,10 +8,9 @@ import org.apache.hadoop.io.BytesWritable;
 
 /**
  * @author Bohdan Mushkevych
- * date 2011-2012
  * Description: module testing Encodings and Intermedia tuples
  */
-public class EncoderTest extends TestCase{
+public class EncoderTest extends TestCase {
     Encoder encoder = new Encoder();
     Tuple2I tuple2I = new Tuple2I();
     Tuple3I tuple3I = new Tuple3I();

@@ -2,7 +2,6 @@ package com.reinvent.synergy.data.system;
 
 /**
  * @author Bohdan Mushkevych
- * date: 29/08/11
  * Description: Module holds all supported TimeQualifiers by the System.
  */
 public enum TimeQualifier {

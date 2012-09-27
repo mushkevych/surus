@@ -4,7 +4,6 @@ import java.lang.annotation.*;
 
 /**
  * @author Bohdan Mushkevych
- * date: 02/09/11
  * Description: Annotation, presenting mapping between a Map and a <column family>
  * i.e. every entry in the Map will become sepapate <column> within the <column family>
  *

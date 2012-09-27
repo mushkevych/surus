@@ -2,7 +2,6 @@ package com.reinvent.synergy.data.varint;
 
 /**
  * @author Bohdan Mushkevych
- * date: 06 Jan 2012
  * Description: module presents tuple of two int values: alpha and beta
  */
 public class Tuple2I extends AbstractTuple {

@@ -12,7 +12,6 @@ import java.io.IOException;
 
 /**
  * @author Bohdan Mushkevych
- * date: 30/08/11
  * Description: module created and executes Hadoop Map/Reduce job
  */
 public class JobRunner {
@@ -64,10 +63,14 @@ public class JobRunner {
     }
 
     public int executeHadoopJob() {
+        long duration = System.currentTimeMillis();
         int returnCode = -100;
         try {
             Job job = createHadoopJob();
             returnCode = job.waitForCompletion(true) ? 0 : 1;
+
+            duration = System.currentTimeMillis() - duration;
+            log.info(String.format("###   Process execution time: %s. %n", TimePeriodHelper.getDurationBreakdown(duration)));
         } catch (IOException e) {
             log.error("IO Exception at Synergy Job Runner level", e);
         } catch (InterruptedException e) {

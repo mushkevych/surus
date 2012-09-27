@@ -17,7 +17,6 @@ import java.util.NavigableMap;
 
 /**
  * @author Bohdan Mushkevych
- * date: 02/09/11
  * Description: module takes care of serialization and deserialization of Data Model
  * while working with the HBase Map/Reduce
  */
@@ -25,8 +24,10 @@ public class EntityService<T> {
     public static final Type MAP_STR_STR = new TypeToken<Map<String, String>>(){}.getType();
     public static final Type MAP_STR_INT = new TypeToken<Map<String, Integer>>(){}.getType();
     public static final Type MAP_INT_INT = new TypeToken<Map<Integer, Integer>>(){}.getType();
+    public static final Type MAP_INT_BYT = new TypeToken<Map<Integer, byte[]>>(){}.getType();
     public static final Type MAP_LNG_INT = new TypeToken<Map<Long, Integer>>(){}.getType();
     public static final Type MAP_STR_DBL = new TypeToken<Map<String, Double>>(){}.getType();
+    public static final Type MAP_STR_BYT = new TypeToken<Map<String, byte[]>>(){}.getType();
 
     private static Logger log = Logger.getLogger(EntityService.class.getName());
     private Gson gson = new Gson();
@@ -55,8 +56,10 @@ public class EntityService<T> {
         } else if (type == EntityService.MAP_STR_STR
                 || type == EntityService.MAP_STR_INT
                 || type == EntityService.MAP_STR_DBL
+                || type == EntityService.MAP_STR_BYT
                 || type == EntityService.MAP_LNG_INT
-                || type == EntityService.MAP_INT_INT) {
+                || type == EntityService.MAP_INT_INT
+                || type == EntityService.MAP_INT_BYT) {
             String deserialized = Bytes.toString(raw);
             return gson.fromJson(deserialized, type);
         } else if (type == Float.class || type == Float.TYPE) {
@@ -93,6 +96,10 @@ public class EntityService<T> {
             type = MAP_STR_STR;
         } else if (keyType == String.class && valueType == Double.class) {
             type = MAP_STR_DBL;
+        } else if (keyType == String.class && valueType == byte[].class) {
+            type = MAP_STR_BYT;
+        } else if (keyType == Integer.class && valueType == byte[].class) {
+            type = MAP_INT_BYT;
         } else if (keyType == Integer.class && valueType == Integer.class) {
             type = MAP_INT_INT;
         } else if (keyType == Long.class && valueType == Integer.class) {

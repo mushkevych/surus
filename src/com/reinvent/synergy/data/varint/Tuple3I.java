@@ -5,7 +5,6 @@ import org.apache.hadoop.io.BytesWritable;
 
 /**
  * @author Bohdan Mushkevych
- * date: 09 Jan 2012
  * Description: module manage tuple of int values: alpha and beta and gama
  */
 public class Tuple3I extends Tuple2I {

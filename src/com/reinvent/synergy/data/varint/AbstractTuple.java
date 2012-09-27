@@ -2,7 +2,6 @@ package com.reinvent.synergy.data.varint;
 
 /**
  * @author Bohdan Mushkevych
- * date 07 March 2012
  * Description:
  */
 public class AbstractTuple {

@@ -5,6 +5,7 @@ import com.reinvent.synergy.data.mapping.JsonService;
 import com.reinvent.synergy.data.primarykey.AbstractPrimaryKey;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.log4j.Logger;
 
@@ -15,11 +16,9 @@ import java.util.NoSuchElementException;
 
 /**
  * @author Bohdan Mushkevych
- * date: 16/09/11
  * Description: Thread-safe pool manager of re-usable resources for Tunnel Workers
  */
 public class PoolManager<T> {
-    protected static final int FLUSH_WINDOW_MILLIS = 30000; //30 seconds
     protected static final int POOL_SIZE = 128;
     protected static final long BUFFER_SIZE = 1024*2048; // 2 MB
 
@@ -27,8 +26,6 @@ public class PoolManager<T> {
     private final Object lockTable = new Object();
     private final Object lockEntity = new Object();
 
-    protected boolean isFlushRequested = false;
-    protected long flushTimeMillis = 0;
     protected int connectionCounter = 0;
     protected Logger log;
 
@@ -84,73 +81,33 @@ public class PoolManager<T> {
         }
     }
 
-    public boolean isFlushRequested() {
-        return isFlushRequested;
-    }
-
     public AbstractPrimaryKey getPrimaryKey() {
         return primaryKey;
     }
 
     /**
-     * @deprecated from the HBase classes:
+     * from the HBase classes:
      * HTableInterface.close() rather than returning the tables to the pool
      */
-    public void putTable(HTable table) {
+    public void putTable(HTableInterface table) {
         synchronized (lockTable) {
             connectionCounter--;
 
             try {
-                poolTable.putTable(table);
-            } catch (IOException e) {
-                log.warn("Error on putting HTable back to the pool. Trying to close it explicitly.", e);
-                try {
-                    table.close();
-                } catch (IOException e1) {
-                    log.error("Error on explicit HTable closure.", e1);
-                }
-            }
-
-            if (isFlushRequested) {
-                flushTable();
+                table.close();
+            } catch (IOException e1) {
+                log.error("Error on explicit HTable closure.", e1);
             }
         }
     }
 
     public HTable getTable() throws IOException {
         synchronized (lockTable) {
-            if (isFlushRequested) {
-                flushTable();
-            }
-
             connectionCounter++;
             HTable table = (HTable) poolTable.getTable(tableName);
             table.setAutoFlush(false);
             table.setWriteBufferSize(BUFFER_SIZE);
             return table;
-        }
-    }
-
-    public void flushTable() {
-        synchronized (lockTable) {
-            if (!isFlushRequested) {
-                flushTimeMillis = System.currentTimeMillis();
-                isFlushRequested = true;
-            }
-            if (System.currentTimeMillis() - flushTimeMillis > FLUSH_WINDOW_MILLIS) {
-                log.warn(String.format("Closing HBase pool due to time-out. Connection delta = %s", connectionCounter));
-                connectionCounter = 0;
-            }
-            if (connectionCounter == 0) {
-                try {
-                    poolTable.closeTablePool(tableName);
-                } catch (IOException e) {
-                    log.error("Error on closing HTablePool", e);
-                }
-                poolTable = new HTablePool();
-                flushTimeMillis = 0;
-                isFlushRequested = false;
-            }
         }
     }
 }

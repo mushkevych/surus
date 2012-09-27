@@ -4,7 +4,6 @@ import java.lang.annotation.*;
 
 /**
  * @author Bohdan Mushkevych
- * date: 02/09/11
  * Description: Annotation describes simple property that will be stored as a <column> in <column family>
  *
  * HProperty must NOT be used in conjunction with other annotations

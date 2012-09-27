@@ -2,7 +2,6 @@ package com.reinvent.synergy.data.varint;
 
 /**
  * @author Bohdan Mushkevych
- * date: 09 Jan 2012
  * Description: module manage tuple of int values: alpha and beta and gama and delta
  */
 public class Tuple4I extends Tuple3I {

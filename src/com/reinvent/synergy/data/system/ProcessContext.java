@@ -10,7 +10,6 @@ import java.util.HashMap;
 
 /**
  * @author Bohdan Mushkevych
- *         date: 30/08/11
  *         Description: Process Context holds definition of all Synergy Processes
  */
 public class ProcessContext {

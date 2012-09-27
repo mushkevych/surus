@@ -2,7 +2,6 @@ package com.reinvent.synergy.data.rest;
 
 /**
  * @author Bohdan Mushkevych
- * date 27/01/12
  * Description: holds static fields, commonly used in request handlers
  */
 public interface RequestHandler extends Runnable {

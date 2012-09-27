@@ -7,7 +7,6 @@ import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 
 /**
  * @author Bohdan Mushkevych
- * date 11/10/11
  * Description: UT for integer and string primary keys
  */
 public class PrimaryKeyTest extends TestCase {

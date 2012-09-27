@@ -2,18 +2,18 @@ package com.reinvent.synergy.data.system;
 
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.*;
 
 /**
  * @author Bohdan Mushkevych
- * date 02/11/11
  * Description: this module holds collection of column families and/or identifiers
  * that limit scope of update of retrieval from HBase, and thus - limitting IO/Network load
  */
 public class ColumnSubset {
-    Set<String> families = new HashSet<String>();
-    Map<String, Set<String>> columns = new HashMap<String, Set<String>>();
+    final Set<String> families = new HashSet<String>();
+    final Map<String, Set<String>> columns = new HashMap<String, Set<String>>();
 
     public ColumnSubset() {
     }
@@ -83,5 +83,22 @@ public class ColumnSubset {
         }
 
         return scan;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Families:");
+        for (String family : families) {
+            builder.append(family).append(",");
+        }
+        builder.append(System.getProperty("line.separator"));
+        for (Map.Entry<String, Set<String>> entry : getColumns().entrySet()) {
+            byte[] family = entry.getKey().getBytes();
+            for (String identifier : entry.getValue()) {
+                builder.append(Bytes.toString(family)).append(":").append(identifier);
+            }
+        }
+        return builder.toString();
     }
 }

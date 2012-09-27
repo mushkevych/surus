@@ -1,19 +1,41 @@
 package com.reinvent.synergy.data.primarykey;
 
+import com.reinvent.synergy.data.model.Constants;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Bohdan Mushkevych
- * date: 27 Sep 2011
  * Description: module contains common methods for primary key operations
  */
 public class StringPrimaryKey extends AbstractPrimaryKey {
     private static final int KEY_LENGTH = 64;
+    private static final Map<String, Class> KEY_COMPONENTS = new HashMap<String, Class>();
+    static {
+        KEY_COMPONENTS.put(Constants.KEY, String.class);
+    }
 
     @Override
     protected int getPrimaryKeyLength() {
         return KEY_LENGTH;
+    }
+
+    @Override
+    public Map<String, Class> getComponents() {
+        return KEY_COMPONENTS;
+    }
+
+    @Override
+    public ImmutableBytesWritable generateRowKey(Map<String, Object> components) {
+        if (components.size() != KEY_COMPONENTS.size()) {
+            throw new IllegalArgumentException(String.format("Number of Key Components is incorrect %d vs %d", components.size(), KEY_COMPONENTS.size()));
+        }
+
+        String key = (String) components.get(Constants.KEY);
+        return generateKey(key);
     }
 
     /**

@@ -10,7 +10,6 @@ import java.util.Set;
 
 /**
  * @author Bohdan Mushkevych
- *         date: 30/08/11
  *         Description: Data Subset Context holds definition of column subsets
  */
 

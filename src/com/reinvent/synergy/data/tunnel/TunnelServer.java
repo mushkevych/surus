@@ -17,7 +17,6 @@ import java.util.concurrent.Executors;
 
 /**
  * @author Bohdan Mushkevych
- * date: 16/09/11
  * Description: Tunnel Server opens TCP port and parses every input as JSON object that is inserted to Hourly
  * collections in HBase
  */

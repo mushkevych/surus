@@ -4,7 +4,6 @@ import java.lang.annotation.*;
 
 /**
  * @author Bohdan Mushkevych
- * date: 26/10/11
  * Description: Annotation to be used for data model Map properties, that occupy single <column> within a <column family>
  * object will be stored as JSON String in a separate <column> of a <column family>:
  * public Map<String, Integer> adIndex;

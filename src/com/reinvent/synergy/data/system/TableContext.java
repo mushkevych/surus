@@ -10,7 +10,6 @@ import java.util.Map;
 
 /**
  * @author Bohdan Mushkevych
- * date 24/10/11
  * Description: holds relationship between table name, primary key and the pool manager
  */
 
@@ -45,6 +44,10 @@ public class TableContext {
     public static PoolManager getPoolManager(String tableName) {
         ContextMapping mapping = getContextMapping(tableName);
         return mapping.poolManager;
+    }
+
+    public static boolean containsTable(String tableName) {
+        return TableContext.CONTEXT.containsKey(tableName);
     }
 
     public static TimeQualifier getTimeQualifier(String tableName) {

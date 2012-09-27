@@ -18,7 +18,6 @@ import java.util.Map;
 
 /**
  * @author Bohdan Mushkevych
- * date: 02/09/11
  * Description: module takes care of serialization and deserialization of Data Model from Python JSON stream
  */
 public class JsonService<T> {
@@ -51,8 +50,10 @@ public class JsonService<T> {
             return jElement.getAsString();
         } else if (type == EntityService.MAP_STR_STR
                 || type == EntityService.MAP_STR_INT
-                || type == EntityService.MAP_LNG_INT
                 || type == EntityService.MAP_STR_DBL
+                || type == EntityService.MAP_STR_BYT
+                || type == EntityService.MAP_LNG_INT
+                || type == EntityService.MAP_INT_BYT
                 || type == EntityService.MAP_INT_INT) {
             if (!jElement.isJsonObject()) {
                 throw new IllegalArgumentException("Can not convert non JsonObject to Map");
@@ -230,5 +231,9 @@ public class JsonService<T> {
 
     public String toJson(Map instance) {
         return gson.toJson(instance);
+    }
+
+    public Gson getGson() {
+        return gson;
     }
 }

@@ -14,7 +14,6 @@ import java.io.IOException;
 
 /**
  * @author Bohdan Mushkevych
- * date 30/01/12
  * Description: handles put/post requests from UI
  */
 public class ExamplePostHandler implements RequestHandler {

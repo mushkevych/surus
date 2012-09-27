@@ -14,7 +14,6 @@ import java.io.IOException;
 
 /**
  * @author Bohdan Mushkevych
- * date 30/01/12
  * Description: handles delete requests from UI
  */
 public class ExampleDeleteHandler implements RequestHandler {

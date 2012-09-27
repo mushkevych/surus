@@ -15,7 +15,6 @@ import java.net.Socket;
 
 /**
  * @author Bohdan Mushkevych
- * date: 16/09/11
  * Description: Module reads serialized stream from Python Hourly aggregators and converts it to the Synergy Data models
  * Afterwards - converted objects are inserted into HBase via Synergy ORM
  */
@@ -29,7 +28,6 @@ public class TunnelWorker<T> implements Runnable {
 
     public static final int STATUS_OK = 0;
     public static final int STATUS_NOT_OK = 999;
-    public static final String COMMAND_FLUSH = "FLUSH";
 
 
     public TunnelWorker(Socket connectionSocket,
@@ -64,13 +62,9 @@ public class TunnelWorker<T> implements Runnable {
                 entityService = poolManager.getEntityService();
                 jsonService = poolManager.getJsonService();
 
-                if (COMMAND_FLUSH.equals(jsonObj)) {
-                    poolManager.flushTable();
-                } else {
-                    T obj = jsonService.fromJson(jsonObj);
-                    Put p = entityService.insert(obj);
-                    table.put(p);
-                }
+                T obj = jsonService.fromJson(jsonObj);
+                Put p = entityService.insert(obj);
+                table.put(p);
             }
         } catch (IOException e) {
             isOK = false;
@@ -91,13 +85,10 @@ public class TunnelWorker<T> implements Runnable {
         }
 
         try {
-            if (!poolManager.isFlushRequested()) {
-                // there is no sense in talking to socket if the client has gone already
-                if (isOK) {
-                    outToClient.write(STATUS_OK);
-                } else {
-                    outToClient.write(STATUS_NOT_OK);
-                }
+            if (isOK) {
+                outToClient.write(STATUS_OK);
+            } else {
+                outToClient.write(STATUS_NOT_OK);
             }
         } catch (IOException e) {
             logger.error("Error on talking back to socket", e);

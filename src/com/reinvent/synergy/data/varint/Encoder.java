@@ -9,7 +9,6 @@ import java.io.*;
 
 /**
  * @author Bohdan Mushkevych
- * date 07 Mar 2012
  * Description: module contains logic for VarInt integer encoding: conversion to and from the byte array
  */
 public class Encoder {
