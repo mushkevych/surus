@@ -1,13 +1,12 @@
-<project name="synergy-surus" basedir="." default="pack">
+<project name="surus-orm" basedir="." default="pack">
 
     <property environment="env"/>
-    <property name="project.title" value="synergy-surus"/>
-    <property name="project.version" value="01"/>
+    <property name="project.title" value="surus-orm"/>
+    <property name="project.version" value="02"/>
     <property name="build.dir" value="${basedir}/build"/>
     <property name="build.test" value="${basedir}/build/test"/>
     <property name="dist.dir" value="${basedir}/dist"/>
     <property name="lib.dir" value="${basedir}/lib"/>
-    <property name="script.dir" value="${basedir}/script"/>
     <property name="mapred.dir" value="/usr/lib/hadoop-mapreduce"/>
     <property name="hadoop.dir" value="/usr/lib/hadoop"/>
     <property name="hbase.dir" value="/usr/lib/hbase"/>
@@ -77,7 +76,6 @@
             <fileset dir="${build.dir}" includes="**/*"/>
             <manifest>
                 <attribute name="Built-By" value="Bohdan Mushkevych"/>
-                <attribute name="Main-Class" value="com.reinvent.synergy.data.system.SynergyDriver"/>
                 <attribute name="Implementation-Title" value="${ant.project.name}"/>
                 <attribute name="Implementation-Version" value="${project.version}-${build.number}"/>
                 <attribute name="Implementation-Vendor" value="reInvent"/>
@@ -91,11 +89,6 @@
         <copy todir="${dist.dir}\lib">
             <fileset dir="${lib.dir}" includes="*"/>
         </copy>
-        <copy todir="${dist.dir}">
-            <fileset dir="${script.dir}"/>
-        </copy>
-        <chmod file="${dist.dir}/rest.sh" perm="ugo+rx"/>
-        <chmod file="${dist.dir}/csv_import.sh" perm="ugo+rx"/>
     </target>
     <!-- ====================== Run Tests ============================== -->
     <!-- ====================== JavaDoc Generation ================================ -->
@@ -107,7 +100,7 @@
         <mkdir dir="${docs}"/>
         <javadoc sourcepath="${src.dir}"
                  destdir="${docs}"
-                 packagenames="com.reinvent.synergy.data.*"
+                 packagenames="com.reinvent.surus.*"
                  author="true"
                  source="1.6"
                  private="true"
@@ -115,12 +108,12 @@
                  defaultexcludes="yes"
                  use="true"
                  maxmemory="512m"
-                 windowtitle="Synergy-Surus API Documentation"
+                 windowtitle="Surus ORM API Documentation"
                  doctitle="&lt;h1&gt;${project.title} Documentation (Version ${project.version})&lt;/h1&gt;"
                  bottom="Copyright &#169; 2011-2012 Bohdan Mushkevych, Reinvent">
             <classpath refid="project.class.path"/>
             <packageset dir="${src.dir}" defaultexcludes="yes">
-                <include name="com/reinvent/synergy/data/**"/>
+                <include name="com/reinvent/surus/**"/>
             </packageset>
         </javadoc>
     </target>

@@ -1,4 +1,26 @@
-Surus is HBase ORM project, developed to easily cooperate with Hadoop Map/Reduce framework and inspired by [https://github.com/ghelmling/meetup.beeno].
-"Surus" is mentioned in history as the elephant carrying Hannibal [https://secure.wikimedia.org/wikipedia/en/wiki/List_of_historical_elephants]
+Surus ORM is HBase ORM project, that targets both work with HBase and integration with Hadoop Map/Reduce framework.
+Surus ORM features:
+* Annotation mapping
+  (sigh with relieve - no code generation and no setters/getters)
+* Both column and column family levels of mapping granularity
+* Primitives are serialized with HBase means,
+  while Maps types are serialized with JSON
+  Thus no custom binary formats or vendor-locks
+* Multi-component rowKeys
+  For example: your rowKey can consist of two component: date [int] + user_name [String]
+
+Currently supported types:
+* Primitives: int/Integer, long/Long, float/Float, String, boolean/Boolean, byte[]
+* Maps: Map<String, String>, Map<String, Integer>, Map<String, String>, Map<String, Double>, Map<String, byte[]>, Map<Integer, Integer>, Map<Integer, byte[]>, Map<Long, Integer>
+* And its fairly easy to add new
+
+Roadmap:
+* List support
+* Multi-component field support
+
+Its worth mentioning that Surus ORM is supported by HBaseExplorer - UI tool to view/search data and modify HBase tables
 
 Please find all how-to (from model declaration to updating object's subset) in wiki: [https://github.com/mushkevych/surus/wiki]
+
+Regarding the name...
+"Surus" is mentioned in history as the elephant carrying Hannibal [https://secure.wikimedia.org/wikipedia/en/wiki/List_of_historical_elephants]
