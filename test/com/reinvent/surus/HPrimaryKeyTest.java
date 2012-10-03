@@ -2,14 +2,11 @@ package com.reinvent.surus;
 
 import com.reinvent.surus.mapping.EntityService;
 import com.reinvent.surus.mapping.HFieldComponent;
-import com.reinvent.surus.model.ComplexExample;
+import com.reinvent.surus.model.ExampleComplex;
 import com.reinvent.surus.model.Constants;
 import com.reinvent.surus.model.Example;
 import com.reinvent.surus.primarykey.HPrimaryKey;
-import com.reinvent.surus.primarykey.IntegerPrimaryKey;
-import com.reinvent.surus.primarykey.StringPrimaryKey;
 import junit.framework.TestCase;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.HashMap;
@@ -21,7 +18,7 @@ import java.util.Map;
  */
 public class HPrimaryKeyTest extends TestCase {
     HPrimaryKey<Example> pkExample = new HPrimaryKey<Example>(Example.class, new EntityService<Example>(Example.class));
-    HPrimaryKey<ComplexExample> pkComplexExample = new HPrimaryKey<ComplexExample>(ComplexExample.class, new EntityService<ComplexExample>(ComplexExample.class));
+    HPrimaryKey<ExampleComplex> pkComplexExample = new HPrimaryKey<ExampleComplex>(ExampleComplex.class, new EntityService<ExampleComplex>(ExampleComplex.class));
 
     @Override
     public void setUp() throws Exception {

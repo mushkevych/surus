@@ -9,7 +9,7 @@ import java.util.Map;
 
 /**
  * @author Bohdan Mushkevych
- * Description: module contains common methods for primary key operations
+ * Description: module serves as an illustration of alternative way to handle integer rowKey
  */
 public class IntegerPrimaryKey extends AbstractPrimaryKey {
     private static final HFieldComponent[] KEY_COMPONENTS = {new AnnotationRuntimeInstance() {

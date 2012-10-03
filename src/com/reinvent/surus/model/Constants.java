@@ -18,4 +18,5 @@ public interface Constants {
 
 
     public static final String TABLE_EXAMPLE = "example";
+    public static final String TABLE_BUCKET = "bucket";
 }

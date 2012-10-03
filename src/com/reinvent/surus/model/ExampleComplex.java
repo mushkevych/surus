@@ -1,6 +1,7 @@
 package com.reinvent.surus.model;
 
 import com.reinvent.surus.mapping.*;
+import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,11 +9,12 @@ import java.util.Map;
 
 /**
  * @author Bohdan Mushkevych
- * Description: Example data model with single-component rowKey
+ * Description: Example data model with multi-component rowKey
  */
-public class Example {
+public class ExampleComplex {
     @HRowKey(components = {
-             @HFieldComponent(name = Constants.KEY, length = HFieldComponent.LENGTH_VARIABLE, type = byte[].class)
+            @HFieldComponent(name = Constants.TIMEPERIOD, length = Bytes.SIZEOF_INT, type = Integer.class),
+            @HFieldComponent(name = Constants.DOMAIN_NAME, length = 64, type = String.class)
     })
     public byte[] key;
 
@@ -33,6 +35,6 @@ public class Example {
     @HNestedMap(keyType = String.class, valueType = Integer.class)
     public Map<String, Map<String, Integer>> os = new HashMap<String, Map<String, Integer>>();
 
-    public Example() {
+    public ExampleComplex() {
     }
 }

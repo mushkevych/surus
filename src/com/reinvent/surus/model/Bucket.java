@@ -9,12 +9,11 @@ import java.util.Map;
 
 /**
  * @author Bohdan Mushkevych
- * Description: Example data model with multi-component rowKey
+ * Description: Bucket data model with single-component rowKey
  */
-public class ComplexExample {
+public class Bucket {
     @HRowKey(components = {
-            @HFieldComponent(name = Constants.TIMEPERIOD, length = Bytes.SIZEOF_INT, type = Integer.class),
-            @HFieldComponent(name = Constants.DOMAIN_NAME, length = 64, type = String.class)
+             @HFieldComponent(name = Constants.KEY, length = Bytes.SIZEOF_INT, type = Integer.class)
     })
     public byte[] key;
 
@@ -35,6 +34,6 @@ public class ComplexExample {
     @HNestedMap(keyType = String.class, valueType = Integer.class)
     public Map<String, Map<String, Integer>> os = new HashMap<String, Map<String, Integer>>();
 
-    public ComplexExample() {
+    public Bucket() {
     }
 }

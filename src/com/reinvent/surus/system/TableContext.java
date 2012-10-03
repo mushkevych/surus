@@ -1,7 +1,11 @@
 package com.reinvent.surus.system;
 
+import com.reinvent.surus.mapping.EntityService;
+import com.reinvent.surus.model.Bucket;
 import com.reinvent.surus.model.Constants;
 import com.reinvent.surus.model.Example;
+import com.reinvent.surus.model.ExampleComplex;
+import com.reinvent.surus.primarykey.HPrimaryKey;
 import com.reinvent.surus.primarykey.IntegerPrimaryKey;
 import org.apache.log4j.Logger;
 
@@ -29,7 +33,10 @@ public class TableContext {
 
     static {
         CONTEXT.put(Constants.TABLE_EXAMPLE, new ContextMapping(
-                TimeQualifier.HOURLY, new PoolManager<Example>(Constants.TABLE_EXAMPLE, Example.class, new IntegerPrimaryKey())));
+                TimeQualifier.HOURLY, new PoolManager<ExampleComplex>(
+                    Constants.TABLE_EXAMPLE, ExampleComplex.class, new HPrimaryKey<ExampleComplex>(ExampleComplex.class, new EntityService<ExampleComplex>(ExampleComplex.class)))));
+        CONTEXT.put(Constants.TABLE_BUCKET, new ContextMapping(
+                TimeQualifier.HOURLY, new PoolManager<Bucket>(Constants.TABLE_BUCKET, Bucket.class, new IntegerPrimaryKey())));
     }
 
     private static ContextMapping getContextMapping(String tableName) {
