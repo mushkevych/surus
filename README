@@ -14,8 +14,10 @@ Currently supported types:
 * Maps: Map<String, String>, Map<String, Integer>, Map<String, String>, Map<String, Double>, Map<String, byte[]>, Map<Integer, Integer>, Map<Integer, byte[]>, Map<Long, Integer>
 * And its fairly easy to add new
 
+Experimental:
+* List support: List<String>, List<Integer>, List<byte[]>, List<Double>, List<Long>
+
 Roadmap:
-* List support
 * Multi-component field support
 
 Its worth mentioning that Surus ORM is supported by HBaseExplorer - UI tool to view/search data and modify HBase tables

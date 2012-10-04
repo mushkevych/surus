@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 
@@ -29,6 +30,12 @@ public class EntityService<T> {
     public static final Type MAP_INT_BYT = new TypeToken<Map<Integer, byte[]>>(){}.getType();
     public static final Type MAP_LNG_INT = new TypeToken<Map<Long, Integer>>(){}.getType();
 
+    public static final Type LIST_STR = new TypeToken<List<String>>(){}.getType();
+    public static final Type LIST_INT = new TypeToken<List<Integer>>(){}.getType();
+    public static final Type LIST_DBL = new TypeToken<List<Double>>(){}.getType();
+    public static final Type LIST_BYT = new TypeToken<List<byte[]>>(){}.getType();
+    public static final Type LIST_LNG = new TypeToken<List<Long>>(){}.getType();
+
     private static Logger log = Logger.getLogger(EntityService.class.getName());
     private Gson gson = new Gson();
     private Class<T> clazz;
@@ -38,47 +45,31 @@ public class EntityService<T> {
     }
 
     /**
-     * Attempts to convert the value object from a byte array to actual field/property type
-     * @param raw presentation of the result object
-     * @param type of property object
-     * @return - converted object or null if input parameter is null
-     * @throws IllegalArgumentException if conversion is unsupported
+     * Shortcut method to check if Map of given type can be de/serialized
+     * @param type of the Map in question
+     * @return True if Map type is known to the system and False otherwise
      */
-    public Object convertFromBytes(byte[] raw, Type type) {
-        if (raw == null) {
-            return null;
-        }
-
-        if (type == Integer.class || type == Integer.TYPE) {
-            return Bytes.toInt(raw);
-        } else if (type == String.class) {
-            return Bytes.toString(raw);
-        } else if (type == EntityService.MAP_STR_STR
+    protected static boolean isMapTypeSupported(Type type) {
+        return (type == EntityService.MAP_STR_STR
                 || type == EntityService.MAP_STR_INT
                 || type == EntityService.MAP_STR_DBL
                 || type == EntityService.MAP_STR_BYT
                 || type == EntityService.MAP_LNG_INT
                 || type == EntityService.MAP_INT_INT
-                || type == EntityService.MAP_INT_BYT) {
-            String deserialized = Bytes.toString(raw);
-            return gson.fromJson(deserialized, type);
-        } else if (type == Float.class || type == Float.TYPE) {
-            return Bytes.toFloat(raw);
-        } else if (type == Double.class || type == Double.TYPE) {
-            return Bytes.toDouble(raw);
-        } else if (type == Long.class || type == Long.TYPE) {
-            return Bytes.toLong(raw);
-        } else if (type instanceof Class && ((Class)type).isArray() && ((Class)type).getComponentType() == Byte.TYPE) {
-            return raw;
-        } else if (type == Boolean.class || type == Boolean.TYPE) {
-            return Bytes.toBoolean(raw);
-        } else if (type == Map.class) {
-            // must be handled by specifying additionally HNestedMap annotation
-            throw new IllegalArgumentException("HNestedMap or HMapProperties annotation is missing");
-        } else {
-            // not handled
-            throw new IllegalArgumentException(String.format("Unsupported type %s for conversion", type.toString()));
-        }
+                || type == EntityService.MAP_INT_BYT);
+    }
+
+    /**
+     * Shortcut method to check if List of given type can be de/serialized
+     * @param type of the List in question
+     * @return True if Map type is known to the system and False otherwise
+     */
+    protected static boolean isListTypeSupported(Type type) {
+        return (type == EntityService.LIST_STR
+                || type == EntityService.LIST_INT
+                || type == EntityService.LIST_DBL
+                || type == EntityService.LIST_BYT
+                || type == EntityService.LIST_LNG);
     }
 
     /**
@@ -112,6 +103,69 @@ public class EntityService<T> {
         return type;
     }
 
+    /**
+     * method inspects element type and looks for matching List Type
+     * @param elementType Class of the List element
+     * @return Type of LIST_STR or other defined in EntityService
+     * @throws IllegalArgumentException if element type can not be matched to known List Type
+     */
+    protected static Type getListType(Class elementType) {
+        Type type;
+        if (elementType == String.class) {
+            type = LIST_STR;
+        } else if (elementType == Integer.class) {
+            type = LIST_INT;
+        } else if (elementType == Double.class) {
+            type = LIST_DBL;
+        } else if (elementType == byte[].class) {
+            type = LIST_BYT;
+        } else if (elementType == Long.class) {
+            type = LIST_LNG;
+        } else {
+            throw new IllegalArgumentException(String.format("Unsupported List element type %s", elementType.getName()));
+        }
+
+        return type;
+    }
+
+    /**
+     * Attempts to convert the value object from a byte array to actual field/property type
+     * @param raw presentation of the result object
+     * @param type of property object
+     * @return - converted object or null if input parameter is null
+     * @throws IllegalArgumentException if conversion is unsupported
+     */
+    public Object convertFromBytes(byte[] raw, Type type) {
+        if (raw == null) {
+            return null;
+        }
+
+        if (type == Integer.class || type == Integer.TYPE) {
+            return Bytes.toInt(raw);
+        } else if (type == String.class) {
+            return Bytes.toString(raw);
+        } else if (EntityService.isMapTypeSupported(type)
+                || EntityService.isListTypeSupported(type)) {
+            String deserialized = Bytes.toString(raw);
+            return gson.fromJson(deserialized, type);
+        } else if (type == Float.class || type == Float.TYPE) {
+            return Bytes.toFloat(raw);
+        } else if (type == Double.class || type == Double.TYPE) {
+            return Bytes.toDouble(raw);
+        } else if (type == Long.class || type == Long.TYPE) {
+            return Bytes.toLong(raw);
+        } else if (type instanceof Class && ((Class)type).isArray() && ((Class)type).getComponentType() == Byte.TYPE) {
+            return raw;
+        } else if (type == Boolean.class || type == Boolean.TYPE) {
+            return Bytes.toBoolean(raw);
+        } else if (type == Map.class) {
+            // must be handled by specifying additionally HNestedMap annotation
+            throw new IllegalArgumentException("HNestedMap or HMapProperties annotation is missing");
+        } else {
+            // not handled
+            throw new IllegalArgumentException(String.format("Unsupported type %s for conversion", type.toString()));
+        }
+    }
 
     /**
      * method parses Result and tries to read regular map from it
@@ -193,6 +247,14 @@ public class EntityService<T> {
                     if (value != null) {
                         f.set(instance, value);
                     }
+                } else if (f.isAnnotationPresent(HListProperty.class)) {
+                    HListProperty annotation = f.getAnnotation(HListProperty.class);
+                    byte[] raw = row.getValue(annotation.family().getBytes(), annotation.identifier().getBytes());
+                    Type type = EntityService.getListType(annotation.elementType());
+                    Object value = convertFromBytes(raw, type);
+                    if (value != null) {
+                        f.set(instance, value);
+                    }
                 } else {
                     log.debug(String.format("Skipping field %s as it has no supported annotations", f.getName()));
                 }
@@ -270,6 +332,12 @@ public class EntityService<T> {
                     Type type = EntityService.getMapType(annotation.keyType(), annotation.valueType());
                     Object value = convertFromBytes(raw, type);
                     putValue(instance, annotation.family(), annotation.identifier(), value);
+                } else if (f.isAnnotationPresent(HListProperty.class)) {
+                    HListProperty annotation = f.getAnnotation(HListProperty.class);
+                    byte[] raw = row.getValue(annotation.family().getBytes(), annotation.identifier().getBytes());
+                    Type type = EntityService.getListType(annotation.elementType());
+                    Object value = convertFromBytes(raw, type);
+                    putValue(instance, annotation.family(), annotation.identifier(), value);
                 } else {
                     log.debug(String.format("Skipping field %s as it has no supported annotations", f.getName()));
                 }
@@ -300,8 +368,10 @@ public class EntityService<T> {
         } else if (obj instanceof String) {
             String value = (String) obj;
             return Bytes.toBytes(value);
-        } else if (obj instanceof Map) {
-            // convert map to JSON object, serialize to String and convert to byte[]
+        } else if (obj instanceof Map
+                || obj instanceof List) {
+            // 1. convert Map or List to JSON object:
+            // 2. serialize to String and convert to byte[]
             String serialized = gson.toJson(obj);
             return Bytes.toBytes(serialized);
         } else if (obj instanceof Float) {
@@ -371,6 +441,10 @@ public class EntityService<T> {
                     byte[] value = convertToBytes(f.get(instance));
                     HMapProperty annotation = f.getAnnotation(HMapProperty.class);
                     update.add(annotation.family().getBytes(), annotation.identifier().getBytes(), value);
+                } else if (f.isAnnotationPresent(HListProperty.class)) {
+                    byte[] value = convertToBytes(f.get(instance));
+                    HListProperty annotation = f.getAnnotation(HListProperty.class);
+                    update.add(annotation.family().getBytes(), annotation.identifier().getBytes(), value);
                 } else {
                     log.debug(String.format("Skipping field %s as it has no supported annotations", f.getName()));
                 }
@@ -421,7 +495,14 @@ public class EntityService<T> {
                         byte[] value = convertToBytes(f.get(instance));
                         update.add(annotation.family().getBytes(), annotation.identifier().getBytes(), value);
                     }
+                } else if (f.isAnnotationPresent(HListProperty.class)) {
+                    HListProperty annotation = f.getAnnotation(HListProperty.class);
+                    if (subset.containsColumn(annotation.family(), annotation.identifier())) {
+                        byte[] value = convertToBytes(f.get(instance));
+                        update.add(annotation.family().getBytes(), annotation.identifier().getBytes(), value);
+                    }
                 }
+
             }
             return update;
         } catch (NoSuchFieldException e) {

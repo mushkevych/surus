@@ -6,8 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.reinvent.surus.model.Constants;
 import com.reinvent.surus.primarykey.AbstractPrimaryKey;
-import com.reinvent.surus.primarykey.IntegerPrimaryKey;
-import com.reinvent.surus.primarykey.StringPrimaryKey;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.log4j.Logger;
 
@@ -48,13 +46,8 @@ public class JsonService<T> {
             return jElement.getAsInt();
         } else if (type == String.class) {
             return jElement.getAsString();
-        } else if (type == EntityService.MAP_STR_STR
-                || type == EntityService.MAP_STR_INT
-                || type == EntityService.MAP_STR_DBL
-                || type == EntityService.MAP_STR_BYT
-                || type == EntityService.MAP_LNG_INT
-                || type == EntityService.MAP_INT_BYT
-                || type == EntityService.MAP_INT_INT) {
+        } else if (EntityService.isMapTypeSupported(type)
+                || EntityService.isListTypeSupported(type)) {
             if (!jElement.isJsonObject()) {
                 throw new IllegalArgumentException("Can not convert non JsonObject to Map");
             }
@@ -79,7 +72,7 @@ public class JsonService<T> {
     /**
      * method converts raw string into Java Primitive accordingly to <type>
      * @param raw string presenting the object
-     * @param type describing the target object
+     * @param type of the target object
      * @return null if raw is null or valid object otherwise
      */
     private Object convertFromString(String raw, Class type) {
@@ -170,20 +163,18 @@ public class JsonService<T> {
             for (Field f : fields) {
                 if (f.isAnnotationPresent(HRowKey.class)) {
                     byte[] pk;
-                    if (primaryKey instanceof StringPrimaryKey) {
+                    Map<String, Object> keyComponentValues = new HashMap<String, Object>();
+
+                    HFieldComponent[] keyComponents = primaryKey.getComponents();
+                    for (HFieldComponent component : keyComponents) {
                         JsonObject joFamily = jsonObject.getAsJsonObject(Constants.FAMILY_STAT);
-                        String keyrow = joFamily.get(Constants.KEY).getAsString();
-                        pk = ((StringPrimaryKey) primaryKey).generateKey(keyrow).get();
-                    } else if (primaryKey instanceof IntegerPrimaryKey) {
-                        JsonObject joFamily = jsonObject.getAsJsonObject(Constants.FAMILY_STAT);
-                        Integer keyrow = joFamily.get(Constants.KEY).getAsInt();
-                        pk = ((IntegerPrimaryKey) primaryKey).generateKey(keyrow).get();
-                    } else {
-                        throw new IllegalArgumentException(String.format("Unsupported type of PrimaryKey %s",
-                                primaryKey.getClass().getName()));
+                        Object value = convertFromElement(joFamily.get(component.name()), component.type());
+                        keyComponentValues.put(component.name(), value);
                     }
 
+                    pk = primaryKey.generateRowKey(keyComponentValues).get();
                     f.set(instance, pk);
+
                 } else if (f.isAnnotationPresent(HMapFamily.class)) {
                     HMapFamily annotation = f.getAnnotation(HMapFamily.class);
                     JsonObject joFamily = jsonObject.getAsJsonObject(annotation.family());
@@ -212,6 +203,15 @@ public class JsonService<T> {
                     JsonElement joPrimitive = joFamily.get(annotation.identifier());
                     if (joPrimitive != null) {
                         Type type = EntityService.getMapType(annotation.keyType(), annotation.valueType());
+                        Object parsed = convertFromElement(joPrimitive, type);
+                        f.set(instance, parsed);
+                    }
+                } else if (f.isAnnotationPresent(HListProperty.class)) {
+                    HListProperty annotation = f.getAnnotation(HListProperty.class);
+                    JsonObject joFamily = jsonObject.getAsJsonObject(annotation.family());
+                    JsonElement joPrimitive = joFamily.get(annotation.identifier());
+                    if (joPrimitive != null) {
+                        Type type = EntityService.getListType(annotation.elementType());
                         Object parsed = convertFromElement(joPrimitive, type);
                         f.set(instance, parsed);
                     }

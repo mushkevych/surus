@@ -27,7 +27,7 @@ public class StringPrimaryKey extends AbstractPrimaryKey {
 
         @Override
         public Class type() {
-            return Integer.class;
+            return String.class;
         }
     }};
 

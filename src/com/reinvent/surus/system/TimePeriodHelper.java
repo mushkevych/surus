@@ -17,6 +17,13 @@ import java.util.concurrent.TimeUnit;
  *         Description: holds logic common for time operations
  */
 public class TimePeriodHelper {
+
+    /**
+     * transforms java.util.Date to UTC-timezone Synergy time period
+     * @param date the
+     * @param qualifier defines granularity of the time period
+     * @return casted time period
+     */
     public static int toSynergyFormat(Date date, TimeQualifier qualifier) {
         DateFormat dateFormat = new SimpleDateFormat(qualifier.getPattern());
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
@@ -24,6 +31,22 @@ public class TimePeriodHelper {
         return Integer.valueOf(formatted);
     }
 
+    /**
+     * @param qualifier defines granularity of the
+     * @return UTC-timezone TimePeriod in Synergy format
+     */
+    public static int getCurrentTimePeriod(TimeQualifier qualifier) {
+        Date now = Calendar.getInstance(TimeZone.getTimeZone("UTC")).getTime();
+        return TimePeriodHelper.toSynergyFormat(now, qualifier);
+    }
+
+    /**
+     * Method performs timeperiod increment/decrement operation
+     * @param timePeriod the
+     * @param by use positive number to increment, and negative to decrement
+     * @param qualifier granularity of the timePeriod
+     * @return incremented time period in Synergy format
+     */
     public static int incrementTimePeriod(int timePeriod, int by, TimeQualifier qualifier) {
         try {
             DateFormat dateFormat = new SimpleDateFormat(qualifier.getPattern().substring(0, qualifier.getMeaningfulPositions()));
