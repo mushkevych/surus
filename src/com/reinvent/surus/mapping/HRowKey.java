@@ -15,10 +15,10 @@ import java.lang.annotation.Target;
  *
  * In case your RowKey should be parsed by third-party component, use following declaration systax
  * {@code
- *     @HRowKey(components = {
- *         @HFieldComponent(name = Constants.KEY, length = HFieldComponent.LENGTH_VARIABLE, type = byte[].class)
- *     })
- *     byte[] key;
+ * .    @HRowKey(components = {
+ * .        @HFieldComponent(name = Constants.KEY, length = HFieldComponent.LENGTH_VARIABLE, type = byte[].class)
+ * .    })
+ * .    byte[] key;
  * }
  */
 

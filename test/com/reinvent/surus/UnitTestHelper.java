@@ -102,17 +102,20 @@ public class UnitTestHelper {
             return false;
         }
 
+        boolean equals = true;
         for (Map.Entry<J, Map<K, V>> entryL : left.entrySet()) {
             if (!right.containsKey(entryL.getKey())) {
-                return false;
+                equals = false;
+                break;
             }
 
             if (!equalsMaps(right.get(entryL.getKey()), entryL.getValue(), valueType)) {
-                return false;
+                equals = false;
+                break;
             }
         }
 
-        return true;
+        return equals;
     }
 
     @SuppressWarnings({"unchecked"})
@@ -121,21 +124,25 @@ public class UnitTestHelper {
             return false;
         }
 
+        boolean equals = true;
         for (Map.Entry<K, V> entryL : left.entrySet()) {
             if (!right.containsKey(entryL.getKey())) {
-                return false;
+                equals = false;
+                break;
             }
 
             if (!valueType.isArray() && !right.get(entryL.getKey()).equals(entryL.getValue())) {
-                return false;
+                equals = false;
+                break;
             }
 
             if (valueType.isArray() && valueType.getComponentType() == Byte.TYPE) {
                 if (Arrays.equals((byte[]) right.get(entryL.getKey()), (byte[]) entryL.getValue()) == false) {
-                    return false;
+                    equals = false;
+                    break;
                 }
             }
         }
-        return true;
+        return equals;
     }
 }
