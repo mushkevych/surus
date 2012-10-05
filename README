@@ -11,7 +11,7 @@ Surus ORM features:
 
 Currently supported types:
 * Primitives: int/Integer, long/Long, float/Float, String, boolean/Boolean, byte[]
-* Maps: Map<String, String>, Map<String, Integer>, Map<String, String>, Map<String, Double>, Map<String, byte[]>, Map<Integer, Integer>, Map<Integer, byte[]>, Map<Long, Integer>
+* Maps: Map<String, String>, Map<String, Integer>, Map<String, Double>, Map<String, byte[]>, Map<Integer, Integer>, Map<Integer, byte[]>, Map<Long, Integer>
 * And its fairly easy to add new
 
 Experimental:

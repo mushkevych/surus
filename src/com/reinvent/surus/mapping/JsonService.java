@@ -37,7 +37,7 @@ public class JsonService<T> {
      * @return converted object or null if input parameter is null
      * @throws IllegalArgumentException if conversion is unsupported
      */
-    private Object convertFromElement(JsonElement jElement, Type type) {
+    public Object convertFromElement(JsonElement jElement, Type type) {
         if (jElement == null) {
             return null;
         }
@@ -49,7 +49,7 @@ public class JsonService<T> {
         } else if (EntityService.isMapTypeSupported(type)
                 || EntityService.isListTypeSupported(type)) {
             if (!jElement.isJsonObject()) {
-                throw new IllegalArgumentException("Can not convert non JsonObject to Map");
+                throw new IllegalArgumentException("Can not convert non JsonObject to Map or List");
             }
             return gson.fromJson(jElement, type);
         } else if (type == Float.class || type == Float.TYPE) {
@@ -75,7 +75,7 @@ public class JsonService<T> {
      * @param type of the target object
      * @return null if raw is null or valid object otherwise
      */
-    private Object convertFromString(String raw, Class type) {
+    public Object convertFromString(String raw, Class type) {
         if (raw == null) {
             return null;
         }
@@ -94,6 +94,8 @@ public class JsonService<T> {
             return Long.valueOf(raw);
         } else if (type == Boolean.class || type == Boolean.TYPE) {
             return Boolean.valueOf(raw);
+        } else if (EntityService.isListTypeSupported(type)) {
+            return gson.fromJson(raw, type);
         } else if (type == Map.class) {
             // must be handled by specifying additionally HNestedMap annotation
             throw new IllegalArgumentException("Map.class is not valid Key type");
