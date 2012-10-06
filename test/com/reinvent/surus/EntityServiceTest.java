@@ -41,6 +41,21 @@ public class EntityServiceTest extends TestCase {
         @HProperty(family = Constants.FAMILY_STAT, identifier = TestConstants.FIELD_BYTE_ARRAY)
         public byte[] fieldByteArray;
 
+        @HListProperty(family = Constants.FAMILY_STAT, identifier = TestConstants.FIELD_LIST_S, elementType = String.class)
+        public List<String> fieldListS;
+
+        @HListProperty(family = Constants.FAMILY_STAT, identifier = TestConstants.FIELD_LIST_D, elementType = Double.class)
+        public List<Double> fieldListD;
+
+        @HListProperty(family = Constants.FAMILY_STAT, identifier = TestConstants.FIELD_LIST_I, elementType = Integer.class)
+        public List<Integer> fieldListI;
+
+        @HListProperty(family = Constants.FAMILY_STAT, identifier = TestConstants.FIELD_LIST_L, elementType = Long.class)
+        public List<Long> fieldListL;
+
+        @HListProperty(family = Constants.FAMILY_STAT, identifier = TestConstants.FIELD_LIST_B, elementType = byte[].class)
+        public List<byte[]> fieldListB;
+
         @HMapProperty(family = Constants.FAMILY_STAT, identifier = TestConstants.FIELD_MAP_SI,
                 keyType = String.class, valueType = Integer.class)
         public Map<String, Integer> fieldMapSI = new HashMap<String, Integer>();
@@ -128,6 +143,12 @@ public class EntityServiceTest extends TestCase {
         testModel.fieldInteger = TestConstants.DEFAULT_INTEGER;
         testModel.fieldLong = TestConstants.DEFAULT_LONG;
 
+        testModel.fieldListS = UnitTestHelper.generateListField(String.class);
+        testModel.fieldListD = UnitTestHelper.generateListField(Double.class);
+        testModel.fieldListB = UnitTestHelper.generateListField(byte[].class);
+        testModel.fieldListI = UnitTestHelper.generateListField(Integer.class);
+        testModel.fieldListL = UnitTestHelper.generateListField(Long.class);
+
         testModel.fieldMapIB = UnitTestHelper.generateMapField(Integer.class, byte[].class);
         testModel.fieldMapII = UnitTestHelper.generateMapField(Integer.class, Integer.class);
         testModel.fieldMapLI = UnitTestHelper.generateMapField(Long.class, Integer.class);
@@ -155,6 +176,12 @@ public class EntityServiceTest extends TestCase {
         assertEquals(testModel.fieldInteger, unmarshaled.fieldInteger);
         assertEquals(testModel.fieldLong, unmarshaled.fieldLong);
         Assert.assertArrayEquals(testModel.fieldByteArray, unmarshaled.fieldByteArray);
+
+        assertTrue(testModel.fieldListS.equals(unmarshaled.fieldListS));
+        assertTrue(testModel.fieldListD.equals(unmarshaled.fieldListD));
+        assertTrue(testModel.fieldListI.equals(unmarshaled.fieldListI));
+        assertTrue(testModel.fieldListL.equals(unmarshaled.fieldListL));
+        UnitTestHelper.equalsLists(testModel.fieldListB, unmarshaled.fieldListB, byte[].class);
 
         assertTrue(testModel.fieldMapII.equals(unmarshaled.fieldMapII));
         assertTrue(testModel.fieldMapLI.equals(unmarshaled.fieldMapLI));

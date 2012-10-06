@@ -29,6 +29,12 @@ public interface TestConstants {
     String FIELD_MAP_IB = "FieldMapIB";
     String FIELD_MAP_LI = "FieldMapLI";
 
+    String FIELD_LIST_S = "fieldListS";
+    String FIELD_LIST_I = "fieldListI";
+    String FIELD_LIST_D = "fieldListD";
+    String FIELD_LIST_L = "fieldListL";
+    String FIELD_LIST_B = "fieldListB";
+
     String FAMILY_MAP_SSI = "FieldMapSSI";
     String FAMILY_MAP_SSS = "FieldMapSSS";
     String FAMILY_MAP_SSD = "FieldMapSSD";

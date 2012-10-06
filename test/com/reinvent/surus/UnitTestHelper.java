@@ -36,6 +36,29 @@ public class UnitTestHelper {
     }
 
     @SuppressWarnings({"unchecked"})
+    public static <T> List<T> generateListField(Class<T> elementType) {
+        Random random = new Random(987654321L);
+        List<T> list = new ArrayList<T>();
+        for (int i = 0; i < 20; i++) {
+            T element = null;
+            if (elementType == String.class) {
+                element = (T) String.valueOf(random.nextInt());
+            } else if (elementType == Integer.class) {
+                element = (T) Integer.valueOf(random.nextInt());
+            } else if (elementType == Long.class) {
+                element = (T) Long.valueOf(random.nextLong());
+            } else if (elementType == Double.class) {
+                element = (T) Double.valueOf(random.nextDouble());
+            } else if (elementType == byte[].class) {
+                byte[] bytes = Bytes.toBytes(random.nextInt());
+                element = (T) bytes;
+            }
+            list.add(element);
+        }
+        return list;
+    }
+
+    @SuppressWarnings({"unchecked"})
     public static <K, V> Map<K, V> generateMapField(Class<K> keyType, Class<V> valueType) {
         Random random = new Random(987654321L);
         Map<K, V> map = new HashMap<K, V>();
@@ -142,6 +165,26 @@ public class UnitTestHelper {
                     break;
                 }
             }
+        }
+        return equals;
+    }
+
+    @SuppressWarnings({"unchecked"})
+    public static <T> boolean equalsLists(List<T> left, List<T> right, Class<T> valueType) {
+        if (left.size() != right.size()) {
+            return false;
+        }
+
+        boolean equals = true;
+        if (valueType.isArray() && valueType.getComponentType() == Byte.TYPE) {
+            for (int i = 0; i < left.size(); i++) {
+                if (Arrays.equals((byte[]) right.get(i), (byte[]) left.get(i)) == false) {
+                    equals = false;
+                    break;
+                }
+            }
+        } else {
+            equals = left.equals(right);
         }
         return equals;
     }
