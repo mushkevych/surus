@@ -18,6 +18,13 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface HNestedMap {
+    /**
+     * @return For given {@code Map<K, V>} method returns {@code K.class}
+     */
 	Class keyType();
+
+    /**
+     * @return For given {@code Map<K, V>} method returns {@code V.class}
+     */
     Class valueType();
 }

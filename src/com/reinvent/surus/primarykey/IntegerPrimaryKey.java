@@ -45,13 +45,13 @@ public class IntegerPrimaryKey extends AbstractPrimaryKey {
             throw new IllegalArgumentException(String.format("Number of Key Components is incorrect %d vs %d", components.size(), KEY_COMPONENTS.length));
         }
 
-        int key = (Integer) components.get(Constants.KEY);
+        Integer key = (Integer) components.get(Constants.KEY);
         return generateKey(key);
     }
 
     /**
      * @param primaryKey the
-     * @return String preseting IntegerPrimaryKey
+     * @return String presenting PrimaryKey
      */
     public String toString(byte[] primaryKey) {
         return String.valueOf(Bytes.toInt(primaryKey));

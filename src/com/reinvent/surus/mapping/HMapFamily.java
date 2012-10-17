@@ -15,7 +15,18 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface HMapFamily {
-	String family();
+    /**
+     * @return String name of the Column Family
+     */
+    String family();
+
+    /**
+     * @return For given {@code Map<K, V>} method returns {@code K.class}
+     */
 	Class keyType();
+
+    /**
+     * @return For given {@code Map<K, V>} method returns {@code V.class}
+     */
     Class valueType();
 }

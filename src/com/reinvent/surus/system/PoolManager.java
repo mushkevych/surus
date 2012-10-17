@@ -4,7 +4,6 @@ import com.reinvent.surus.mapping.EntityService;
 import com.reinvent.surus.mapping.JsonService;
 import com.reinvent.surus.primarykey.AbstractPrimaryKey;
 import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.log4j.Logger;
@@ -101,13 +100,10 @@ public class PoolManager<T> {
         }
     }
 
-    public HTable getTable() throws IOException {
+    public HTableInterface getTable() throws IOException {
         synchronized (lockTable) {
             connectionCounter++;
-            HTable table = (HTable) poolTable.getTable(tableName);
-            table.setAutoFlush(false);
-            table.setWriteBufferSize(BUFFER_SIZE);
-            return table;
+            return poolTable.getTable(tableName);
         }
     }
 }

@@ -13,7 +13,18 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface HListProperty {
-	String family();
+    /**
+     * @return String name of the Column Family
+     */
+    String family();
+
+    /**
+     * @return String name of the Column (qualifier)
+     */
 	String identifier();
+
+    /**
+     * @return type of the List elements. In other words, for given {@code List<T>} method returns {@code T.class}
+     */
     Class elementType();
 }

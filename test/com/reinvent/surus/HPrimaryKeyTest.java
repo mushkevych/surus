@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * @author Bohdan Mushkevych
- * Description: UT for integer and string primary keys
+ * Description: UT for HPrimaryKey primary keys: one single-component, other multi-component
  */
 public class HPrimaryKeyTest extends TestCase {
     HPrimaryKey<Example> pkExample = new HPrimaryKey<Example>(Example.class, new EntityService<Example>(Example.class));

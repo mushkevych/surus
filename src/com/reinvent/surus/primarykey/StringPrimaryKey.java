@@ -52,12 +52,21 @@ public class StringPrimaryKey extends AbstractPrimaryKey {
     }
 
     /**
-     * Parses PrimaryKey and extracts Domain Name from it
+     * Converts byte[] to String representation and trim extra space
      * @param primaryKey the
-     * @return String preseting domain name
+     * @return String presentation
      */
     public String toString(byte[] primaryKey) {
         return Bytes.toString(primaryKey).trim();
+    }
+
+    /**
+     * Converts byte[] to String representation. No extra space is trimmed
+     * @param primaryKey the
+     * @return String presentation
+     */
+    public String getValue(byte[] primaryKey) {
+        return Bytes.toString(primaryKey);
     }
 
     /**

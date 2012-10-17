@@ -12,6 +12,7 @@ import java.util.*;
 
 /**
  * @author Bohdan Mushkevych
+ * Description: UT covers marshaling/unmarshaling for the ORM core - EntityService class
  */
 public class EntityServiceTest extends TestCase {
     public static class TestModel {

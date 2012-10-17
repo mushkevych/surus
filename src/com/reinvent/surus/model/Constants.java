@@ -2,7 +2,7 @@ package com.reinvent.surus.model;
 
 /**
  * @author Bohdan Mushkevych
- * Description: declaration of UPDATE_FIELDS, common to Synergy Model
+ * Description: declaration field names, common to Surus ORM models
  */
 public interface Constants {
     // FIELDS

@@ -13,6 +13,13 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
 public @interface HProperty {
-	String family();
+    /**
+     * @return String name of the Column Family
+     */
+    String family();
+
+    /**
+     * @return String name of the Column (qualifier)
+     */
 	String identifier();
 }
