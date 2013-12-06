@@ -4,16 +4,15 @@ import java.lang.annotation.*;
 
 /**
  * @author Bohdan Mushkevych
- * Description: Annotation describes simple property that will be stored as a <column> in <column family>
+ * Description: Annotation describes Protobuf property that will be stored as a <column> in <column family>
  *
- * HProperty must NOT be used in conjunction with other annotations
+ * HProtobufProperty must NOT be used in conjunction with other annotations
  */
 
-@Deprecated
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.FIELD})
-public @interface HProperty {
+public @interface HProtobufProperty {
     /**
      * @return String name of the Column Family
      */
@@ -22,5 +21,11 @@ public @interface HProperty {
     /**
      * @return String name of the Column (qualifier)
      */
-	String identifier();
+    String identifier();
+
+    /**
+     * @return exact protobuf class type
+     */
+    Class elementType();
+
 }
